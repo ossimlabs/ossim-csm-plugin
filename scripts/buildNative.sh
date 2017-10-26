@@ -37,6 +37,7 @@ cmake \
 -DCSM_HOME=$CSM_HOME \
 -DMSP_HOME=$MSP_HOME \
 -DCMAKE_INSTALL_PREFIX=$CMAKE_DIR/install \
+-DCMAKE_MODULE_PATH=OSSIM_INSTALL_PREFIX/cmake/CMakeModules \
 $CMAKE_DIR
 
 if [ $? != 0 ]; then
