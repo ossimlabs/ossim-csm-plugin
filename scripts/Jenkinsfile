@@ -1,0 +1,56 @@
+
+def notifyObj
+node ( "" ) {
+    env.WORKSPACE = pwd()
+    env.MAKE_VERBOSE = "${ MAKE_VERBOSE }"
+    env.OSSIM_INSTALL_PREFIX = "${ env.WORKSPACE }/ossim"
+    env.MSP_INSTALL_DIR = "/usr/local/msp-1.5"
+    env.MSP_HOME = "/usr/local/msp-1.5"
+    env.OPENCV_HOME = "/usr/local/opencv-3.2"
+    def omarCommonProjName = "omar-common"
+    env.OMAR_COMMON_PROPERTIES="${ env.WORKSPACE }/${ omarCommonProjName }/omar-common-properties.gradle"
+    try {
+        stage( "Checkout" ) {
+            dir( "ossim-ci" ) {
+                git branch: "${ OSSIM_GIT_BRANCH }", url: 'https://github.com/ossimlabs/ossim-ci.git'
+            }
+            dir( appName ) {
+                git branch: "${ OSSIM_GIT_BRANCH }", url: "https://github.com/ossimlabs/ossim-csm-plugin.git"
+            }
+            dir(omarCommonProjName) {
+                git branch: "${OSSIM_GIT_BRANCH}", url: "https://github.com/ossimlabs/${omarCommonProjName}.git"
+            }
+            notifyObj = load "${ env.WORKSPACE }/ossim-ci/jenkins/pipeline/notify.groovy"
+        }
+
+        echo "${ env.WORKSPACE }"
+
+        stage( "Download Artifacts" ) {
+            dir( "${ env.WORKSPACE }" ) {
+                step ([ $class: "CopyArtifact",
+                    projectName: "ossim-${ OSSIM_GIT_BRANCH }",
+                    filter: "artifacts/install.tgz",
+                    flatten: true ])
+            }
+        }
+
+        stage( "Build" ) {
+            sh """
+                mkdir -p ${ env.OSSIM_INSTALL_PREFIX }
+                tar xfz install.tgz -C ${ env.OSSIM_INSTALL_PREFIX }
+                mv ${ env.OSSIM_INSTALL_PREFIX }/install/* ${ env.OSSIM_INSTALL_PREFIX }
+            """
+        }
+
+    }
+
+    catch( e ) {
+        println e
+        currentBuild.result = "FAILED"
+        notifyObj?.notifyFailed()
+    }
+
+    stage( "Clean Workspace" ) {
+        step([ $class: 'WsCleanup' ])
+    }
+}
