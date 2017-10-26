@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+
 set(LIB_NAME ossim_csm3_plugin)
 MESSAGE( "************** LIBRARY SETUP FOR ossim_csm3_plugin******************")
 

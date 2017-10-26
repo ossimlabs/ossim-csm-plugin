@@ -1,4 +1,3 @@
-
 cmake_minimum_required (VERSION 2.8)
 
 # Get the library suffix for lib or lib64.
