@@ -62,7 +62,7 @@ node ( "" ) {
     }
 
     catch( e ) {
-        println e
+        println "ERROR: ${e} "
         currentBuild.result = "FAILED"
         notifyObj?.notifyFailed()
     }
