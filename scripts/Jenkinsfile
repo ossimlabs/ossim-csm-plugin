@@ -68,6 +68,6 @@ node ( "" ) {
     }
 
     stage( "Clean Workspace" ) {
-        step([ $class: 'WsCleanup' ])
+//        step([ $class: 'WsCleanup' ])
     }
 }
