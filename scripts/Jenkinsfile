@@ -63,7 +63,7 @@ node ( "" ) {
         stage("Archive"){
            dir( "ossim-csm-plugin/build/lib64" ) {
               archiveArtifacts artifacts:"*.so"
-           {
+           }
        }
     }
 
