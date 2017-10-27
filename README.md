@@ -15,5 +15,12 @@ The steps to build are:
 2. Make sure you enable the build of the plugin by passing the variable `BUILD_CSM_PLUGIN="ON"` to the cmake script `ossim/cmake/scripts/ossim-cmake-config.sh`. 
 3. Assuming cmake ran successfully, simply do a `make` in the build directory. Also `make install` may be desired. Refer to the build instructions in ossim/README.md.
 4. The build should have produced libossim_csm_plugin.so (or dll) in the build's `lib` directory, or, if install was done, in your installation directory.
-```
+5. Add the plugin library to your list of plugins in your ossim-preferences file. The CSM models (supplied with the CSM API) plugin directory also needs to be specified there as:
 
+  `csm3_plugin_path: <csm_api_plugin_dir/path>`
+  
+Do this simple test to check if OSSIM is properly loading the CSM models:
+
+   `ossim-info --plugins` 
+
+The CSM models should be listed.
