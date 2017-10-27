@@ -34,7 +34,7 @@ node ( "" ) {
             notifyObj = load "${ env.WORKSPACE }/ossim-ci/jenkins/pipeline/notify.groovy"
         }
 
-        echo "${ env.WORKSPACE }"
+        echo "WORKSPACE: ${ env.WORKSPACE }"
 
         stage( "Download Artifacts" ) {
             dir( "${ env.WORKSPACE }" ) {
