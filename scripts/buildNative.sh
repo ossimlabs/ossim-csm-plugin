@@ -28,6 +28,7 @@ echo "  OSSIM_DEV_HOME       = $OSSIM_DEV_HOME"
 echo "  OSSIM_INSTALL_PREFIX = $OSSIM_INSTALL_PREFIX"
 echo "  MSP_HOME             = $MSP_HOME"
 echo "  CSM_HOME             = $CSM_HOME"
+echo "  CMAKE_DIR            = $CMAKE_DIR"
 
 echo; echo "Generate makefiles."
 cmake \
@@ -54,15 +55,5 @@ fi
 echo "Build successful!"; 
 popd
 
-#echo; echo "Archive ossim-csm-plugin install."
-#pushd $CMAKE_DIR
-#tar cvfz ossim-csm-plugin.tgz install/
-#if [ $? != 0 ]; then
-#  echo "Error encountered in archiving install."
-#  popd; exit 1
-#fi
-#echo "Install archive available at: $CMAKE_DIR/ossim-csm-plugin.tgz."; 
-#popd
-    
 echo
 
