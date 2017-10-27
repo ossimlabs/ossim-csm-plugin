@@ -61,7 +61,9 @@ node ( "" ) {
         }
 
         stage("Archive"){
-          archiveArtifacts artifacts:"${env.WORKSPACE}/artifacts/*"
+           dir( "ossim-csm-plugin/build/lib64" ) {
+              archiveArtifacts artifacts:"*.so"
+           {
        }
     }
 
