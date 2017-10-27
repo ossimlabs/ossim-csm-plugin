@@ -55,8 +55,6 @@ node ( "" ) {
                  
                 rm -rf ${ env.WORKSPACE }/build/CMakeCache.txt
                 ${ env.WORKSPACE }/ossim-csm-plugin/scripts/buildNative.sh
-                mkdir -p ${env.WORKSPACE}/artifacts
-                cp ${env.WORKSPACE}/ossim-csm-plugin/build/lib64/* ${env.WORKSPACE}/artifacts 
             """
         }
 

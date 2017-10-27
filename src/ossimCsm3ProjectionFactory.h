@@ -13,7 +13,7 @@
 #include "ossimCsm3Loader.h"
 #include <ossim/plugin/ossimPluginConstants.h>
 #include <ossim/projection/ossimProjectionFactoryBase.h>
-
+#include <list>
 
 class ossimProjection;
 class ossimString;
