@@ -31,7 +31,7 @@ echo "  CSM_HOME             = $CSM_HOME"
 
 echo; echo "Generate makefiles."
 cmake \
--DCMAKE_BUILD_TYPE="Debug" \
+-DCMAKE_BUILD_TYPE="Release" \
 -DOSSIM_INSTALL_PREFIX=$OSSIM_INSTALL_PREFIX \
 -DOSSIM_DEV_HOME=$OSSIM_DEV_HOME \
 -DCSM_HOME=$CSM_HOME \

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 
-set(LIB_NAME ossim_csm3_plugin)
-MESSAGE( "************** LIBRARY SETUP FOR ossim_csm3_plugin******************")
+set(LIB_NAME ossim_csm_plugin)
+MESSAGE( "************** LIBRARY SETUP FOR ossim_csm_plugin******************")
 
 # Include ossim cmake stuff:
 include(OssimVersion)

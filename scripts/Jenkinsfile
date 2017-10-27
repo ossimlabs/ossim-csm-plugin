@@ -56,6 +56,9 @@ node ( "" ) {
             """
         }
 
+        stage("Archive"){
+          archiveArtifacts '${env.WORKSPACE}/build/lib/ossim-csm-plugin.so'
+       }
     }
 
     catch( e ) {
