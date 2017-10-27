@@ -57,7 +57,7 @@ node ( "" ) {
         }
 
         stage("Archive"){
-          archiveArtifacts "${env.OSSIM_INSTALL_PREFIX}/lib64/ossim/plugins/libossim_csm_plugin.*"
+          archiveArtifacts "${env.WORKSPACE}/ossim-csm-plugin/build/lib64/*"
        }
     }
 
