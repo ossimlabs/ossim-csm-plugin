@@ -83,7 +83,7 @@ bool ossimCsm3Loader::loadPlugins()
         {
              ossimNotify(ossimNotifyLevel_WARN)
              << "loadPlugins: " + dllfiles[i] + "\" file failed to load." << std::endl;
-            
+
         }
       //if (NULL == dll)
       //    DWORD ret = GetLastError();
@@ -140,6 +140,9 @@ void ossimCsm3Loader::getAvailableSensorModelNames(List& sensors, std::string& p
     for( ; i != pluginList.end(); i++ ) 
     {
         if( (*i)->getPluginName() != string(pluginName) )
+        {
+            break;
+        }
     }
 
     if(i != pluginList.end())
