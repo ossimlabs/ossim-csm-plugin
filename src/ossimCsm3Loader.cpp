@@ -51,7 +51,13 @@ bool ossimCsm3Loader::loadPlugins()
    // get plugin path from the preferences file and verify it
    thePluginDir = ossimFilename(ossimPreferences::instance()->findPreference("csm3_plugin_path"));
    if(thePluginDir.empty())
-      return false;
+   {
+       thePluginDir = ossimFilename(ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path"));
+   }
+   if(thePluginDir.empty())
+   {
+      return false;    
+   }
 
    // Load all of the dynamic libraries in the plugin path
    // first get the list of all the dynamic libraries found
@@ -98,19 +104,23 @@ bool ossimCsm3Loader::removePlugin(const std::string& pluginName)
     return false;
 }
 
+void ossimCsm3Loader::getAvailablePluginNames(std::vector<std::string>& plugins) const
+{
+    plugins.clear();
+    PluginList pluginList = Plugin::getList( );
+
+    for( PluginList::const_iterator i = pluginList.begin(); i != pluginList.end(); i++ ) 
+        plugins.push_back( (*i)->getPluginName() );
+}
 
 vector<string> ossimCsm3Loader::getAvailablePluginNames() const
 {
-	vector<string> returnVector;
-
+	vector<string> result;
+    getAvailablePluginNames(result);
     // now get the PluginList to get the PluginName
-	PluginList pluginList = Plugin::getList( );
 
     // iterate through the PluginList to get the PluginName
-	for( PluginList::const_iterator i = pluginList.begin(); i != pluginList.end(); i++ ) 
-		returnVector.push_back( (*i)->getPluginName() );
-
-	return returnVector;
+	return result;
 } 
 
 

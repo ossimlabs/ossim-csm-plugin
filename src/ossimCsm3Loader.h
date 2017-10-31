@@ -31,6 +31,8 @@ public:
     */
     ossimCsm3Loader();
 
+    void getAvailablePluginNames(std::vector<std::string>& plugins) const;
+
    /*!
     * Returns available plugins found in plugin path
     * plguin path is specified in prefrence file, in keyword "csm3_plugin_path"
