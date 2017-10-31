@@ -132,7 +132,7 @@ void getAvailableSensorModelNames(List& sensors, std::string& pPluginName) const
     // iterate through the plugins list, looking for the specific Plugin
     for( ; i != pluginList.end(); i++ ) 
     {
-        if( (*i)->getPluginName() != string(pluginName) )
+        if( (*i)->getPluginName() != std::string(pluginName) )
     }
 
     if(i != pluginList.end())

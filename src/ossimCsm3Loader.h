@@ -26,7 +26,7 @@ class ossimCsm3SensorModel;
 class OSSIM_PLUGINS_DLL ossimCsm3Loader 
 {
 public:
-    typedef std::vector<string> List;
+    typedef std::vector<std::string> List;
    /*!
     * Constructor
     */
