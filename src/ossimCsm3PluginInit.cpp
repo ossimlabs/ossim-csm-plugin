@@ -11,6 +11,7 @@
 //  $Id: ossimCsm3PluginInit.cpp 1579 2015-06-08 17:09:57Z cchuah $
 
 #include "ossimCsm3ProjectionFactory.h"
+#include "ossimCsm3Loader.h"
 #include <ossim/plugin/ossimPluginConstants.h>
 #include <ossim/plugin/ossimSharedObjectBridge.h>
 #include <ossim/projection/ossimProjectionFactoryRegistry.h>
@@ -23,7 +24,34 @@ static void setDescription(ossimString& description)
 {
     std::ostringstream out;
     out  << "Community Sensor Model 3.0.1 Plugin\n\n";
-  
+    ossimCsm3Loader loader;
+    ossimCsm3Loader::List plugins;
+    ossimCsm3Loader::List sensors;
+    loader.getAvailablePluginNames(plugins);
+    if(!plugins.empty())
+    {
+        out << "\nAvailable plugins are: \n\n";
+        for(auto plugin:plugins)
+        {
+            out << plugin << "\n";
+            sensors.clear();
+            loader.getAvailableSensorModelNames(sensors, plugin);
+            if(sensor.size())
+            {
+                out << " sensors: \n";
+            }
+            for(auto sensor:sensors)
+            {
+                out << "     " << sensor << "\n"
+            }
+        }  
+    }
+    else
+    {
+        out << "No plugins were found in directory.\n\n";
+    }
+
+ #if 0 
     // by this time, the plugins have already been registered by the ossimCsm3ProjectionFactory
     // the Plugin object should already contain a list of the available plugins
     // Get the plugins list
@@ -39,7 +67,7 @@ static void setDescription(ossimString& description)
 	    for( csm::PluginList::const_iterator i = pluginList.begin(); i != pluginList.end(); i++ ) 
             out <<  (*i)->getPluginName() << "\n\n";
     }
-
+#endif
     description = out.str();
 }
 
