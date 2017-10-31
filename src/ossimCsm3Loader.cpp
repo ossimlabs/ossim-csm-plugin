@@ -104,10 +104,13 @@ bool ossimCsm3Loader::removePlugin(const std::string& pluginName)
         // TBD: close the shared object/DLL
         return true;
     }
-    else
-        ossimNotify(ossimNotifyLevel_WARN) 
-        << "removePlugin: Cannot find plugin \"" + pluginName + "\" for removal." << std::endl;
-
+    else{
+        if(traceDebug())
+        {
+             ossimNotify(ossimNotifyLevel_WARN) 
+                << "removePlugin: Cannot find plugin \"" + pluginName + "\" for removal." << std::endl;
+        }
+    }
     return false;
 }
 
@@ -181,20 +184,25 @@ RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pluginName,
 		// Make sure the input data is not NULL
 		if( pluginName.empty() || pSensorModelName.empty() || pSensorState.empty() ) 
         {
-            ossimNotify(ossimNotifyLevel_WARN)
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_WARN)
                 << "loadModelFromState: Plugin Name, Sensor Model Name, and sensor state must be specified."
                 << std::endl;
-
+            }
 			return NULL;
 		}
 
 	    const Plugin* plugin = Plugin::findPlugin( pluginName );
 		if( plugin == NULL ) 
         {
-            ossimNotify(ossimNotifyLevel_WARN)
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_WARN)
                 <<  "loadModelFromState: No plugin with the name \"" << pluginName << "\" was found."
                 << std::endl;
-			return NULL;
+			}
+            return NULL;
 		}
 
 		// Load the sensor model using the appropriate information
@@ -205,9 +213,13 @@ RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pluginName,
 		constructible = plugin->canModelBeConstructedFromState(pSensorModelName, pSensorState);
 		if( !constructible ) 
         {
-            ossimNotify(ossimNotifyLevel_WARN)
-                <<  "loadModelFromState: The specified state cannot be used to construct a sensor model."
-                << std::endl;
+            if(traceDebug())
+            {
+     
+                ossimNotify(ossimNotifyLevel_WARN)
+                    <<  "loadModelFromState: The specified state cannot be used to construct a sensor model."
+                    << std::endl;
+            }
 			return NULL;
 		}
 
@@ -215,24 +227,36 @@ RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pluginName,
 		sensorModel = plugin->constructModelFromState( pSensorState );
 		if( sensorModel == NULL ) 
         {
-            ossimNotify(ossimNotifyLevel_WARN)
-			    << "loadModelFromState: Failed to create sensor model from sensor state."
-                << std::endl;
+            if(traceDebug())
+            {
+
+                ossimNotify(ossimNotifyLevel_WARN)
+			        << "loadModelFromState: Failed to create sensor model from sensor state."
+                    << std::endl;
+            }
             return NULL;
 		}
         else
-		    return  dynamic_cast<RasterGM*>(sensorModel);
+        {
+            return  dynamic_cast<RasterGM*>(sensorModel);
+        }
 	} 
 	catch (csm::Error& err) 
 	{
-		ossimNotify(ossimNotifyLevel_WARN) 
+        if(traceDebug())
+        {
+     		ossimNotify(ossimNotifyLevel_WARN) 
             << err.getFunction() << '\n' << err.getMessage() << '\n' << std::endl;
-	}
+	    }
+    }
 	catch(...) 
     {
-        ossimNotify(ossimNotifyLevel_WARN)
+        if(traceDebug())
+        {
+             ossimNotify(ossimNotifyLevel_WARN)
 	        << "Exception thrown in ossimCSM3Loader::loadModelFromState"
             << std::endl;
+        }
     }
 	return NULL;
 }
@@ -245,18 +269,24 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pluginName,
 		// Make sure the input data is not NULL
 		if( pluginName.empty() || pSensorModelName.empty() || pInputImage.empty() ) 
         {
-            ossimNotify(ossimNotifyLevel_WARN)
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_WARN)
                 << "loadModelFromFile: Plugin Name, Sensor Model Name, and Image Name must be specified."
                 << std::endl;
+            }
 			return NULL;
 		}
 
 	    const Plugin* plugin = Plugin::findPlugin( pluginName );
 		if( plugin == NULL ) 
         {
-            ossimNotify(ossimNotifyLevel_WARN)
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_WARN)
                 <<  "loadModelFromFile: No plugin with the name \"" << pluginName << "\" was found."
                 << std::endl;
+            }
 			return NULL;
 		}
 
@@ -279,8 +309,11 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pluginName,
 
 		if (constructible) 
 		{
-            ossimNotify(ossimNotifyLevel_INFO) << "Constructing sensor model via filename" << std::endl;
-			sensorModel = plugin->constructModelFromISD( *fnameIsd, pSensorModelName );
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_INFO) << "Constructing sensor model via filename" << std::endl;
+			}
+            sensorModel = plugin->constructModelFromISD( *fnameIsd, pSensorModelName );
             delete fnameIsd;
 		    return  dynamic_cast<RasterGM*>(sensorModel);
 		}
@@ -300,8 +333,11 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pluginName,
 
 		if (constructible) 
 		{
-            ossimNotify(ossimNotifyLevel_INFO) << "Constructing sensor model from NITF 2.1 file" << std::endl;
-			sensorModel = plugin->constructModelFromISD( *nitf21Isd, pSensorModelName );
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_INFO) << "Constructing sensor model from NITF 2.1 file" << std::endl;
+			}
+            sensorModel = plugin->constructModelFromISD( *nitf21Isd, pSensorModelName );
             delete nitf21Isd;
 		    return  dynamic_cast<RasterGM*>(sensorModel);
 		}
@@ -322,8 +358,11 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pluginName,
 
 		if (constructible) 
 		{
-            ossimNotify(ossimNotifyLevel_INFO) << "Constructing sensor model from NITF 2.0 file" << std::endl;
-			sensorModel = plugin->constructModelFromISD( *nitf20Isd, pSensorModelName );
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_INFO) << "Constructing sensor model from NITF 2.0 file" << std::endl;
+			}
+            sensorModel = plugin->constructModelFromISD( *nitf20Isd, pSensorModelName );
             delete nitf20Isd;
 		    return  dynamic_cast<RasterGM*>(sensorModel);
 		}
@@ -331,21 +370,30 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pluginName,
         // if we reach here, we have failed to create a sensor model
 		if( sensorModel == NULL ) 
         {
-            ossimNotify(ossimNotifyLevel_WARN)
+            if(traceDebug())
+            {
+                 ossimNotify(ossimNotifyLevel_WARN)
                 << "loadModelFromFile: Unable to create sensor model \"" << pSensorModelName
                 << "\" using the image \"" + pInputImage + "\""  << std::endl;
-			return NULL;
+			}
+            return NULL;
 		}
 	} 
 	catch (csm::Error& err) 
 	{
-		ossimNotify(ossimNotifyLevel_WARN) 
+        if(traceDebug())
+        {
+     		ossimNotify(ossimNotifyLevel_WARN) 
             << err.getFunction() << '\n' << err.getMessage() << '\n' << std::endl;
-	}
+	    }
+    }
 	catch(...) 
 	{
-        ossimNotify(ossimNotifyLevel_WARN) 
+        if(traceDebug())
+        {
+             ossimNotify(ossimNotifyLevel_WARN) 
             << "Exception thrown in ossimCSM3Loader::loadModelFromFile" << std::endl;
+        }
     }
 
 	return NULL;
