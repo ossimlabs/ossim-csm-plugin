@@ -125,7 +125,8 @@ void ossimCsm3Loader::getAvailablePluginNames(ossimCsm3Loader::List& plugins) co
 
 ossimCsm3Loader::List ossimCsm3Loader::getAvailablePluginNames() const
 {
-	vector<string> result;
+	ossimCsm3Loader::List result;
+
     getAvailablePluginNames(result);
     // now get the PluginList to get the PluginName
 
@@ -142,7 +143,7 @@ void ossimCsm3Loader::getAvailableSensorModelNames(List& sensors, std::string& p
     // iterate through the plugins list, looking for the specific Plugin
     for( ; i != pluginList.end(); i++ ) 
     {
-        if( (*i)->getPluginName() != string(pluginName) )
+        if( (*i)->getPluginName() == pluginName )
         {
             break;
         }
