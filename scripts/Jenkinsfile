@@ -55,7 +55,7 @@ node ( "" ) {
                  
                 rm -rf ${ env.WORKSPACE }/build/CMakeCache.txt
                 ${ env.WORKSPACE }/ossim-csm-plugin/scripts/buildNative.sh
-                ${ env.WORKSPACE }/ossim-csm-plugin
+                cd ${ env.WORKSPACE }/ossim-csm-plugin
                 tar cvfz ossim-csm-plugin-install.tgz install
             """
         }
