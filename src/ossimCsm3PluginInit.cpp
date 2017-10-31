@@ -36,7 +36,7 @@ static void setDescription(ossimString& description)
             out << plugin << "\n";
             sensors.clear();
             loader.getAvailableSensorModelNames(sensors, plugin);
-            if(sensor.size())
+            if(sensors.size())
             {
                 out << " sensors: \n";
             }
