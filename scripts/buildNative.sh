@@ -32,7 +32,7 @@ echo "  CMAKE_DIR            = $CMAKE_DIR"
 
 echo; echo "Generate makefiles."
 cmake \
--DCMAKE_BUILD_TYPE="Release" \
+-DCMAKE_BUILD_TYPE="RelWithDebug" \
 -DOSSIM_INSTALL_PREFIX=$OSSIM_INSTALL_PREFIX \
 -DOSSIM_DEV_HOME=$OSSIM_DEV_HOME \
 -DCSM_HOME=$CSM_HOME \
