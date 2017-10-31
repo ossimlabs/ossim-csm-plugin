@@ -30,6 +30,7 @@
 # include <errno.h> // for errno
 #endif
 
+#include <ossim/base/ossimTrace.h>
 
 using namespace csm;
 
@@ -40,6 +41,8 @@ using namespace csm;
     typedef void* DllHandle;
     static const string dylibExt = ".so";
 #endif
+
+static ossimTrace traceDebug("ossimCsm3Loader:debug");
 
 ossimCsm3Loader::ossimCsm3Loader()
 {
@@ -76,8 +79,12 @@ bool ossimCsm3Loader::loadPlugins()
          thePluginLibs.push_back(lib);
       }
       else
-         ossimNotify(ossimNotifyLevel_WARN)
-         << "loadPlugins: " + dllfiles[i] + "\" file failed to load." << std::endl;
+        if(traceDebug())
+        {
+             ossimNotify(ossimNotifyLevel_WARN)
+             << "loadPlugins: " + dllfiles[i] + "\" file failed to load." << std::endl;
+            
+        }
       //if (NULL == dll)
       //    DWORD ret = GetLastError();
    }
@@ -123,7 +130,7 @@ ossimCsm3Loader::List ossimCsm3Loader::getAvailablePluginNames() const
 	return result;
 } 
 
-void ossimCsm3Loader::getAvailableSensorModelNames(List& sensors, std::string& pPluginName) const
+void ossimCsm3Loader::getAvailableSensorModelNames(List& sensors, std::string& pluginName) const
 {
     // now get the PluginList to get the PluginName
     PluginList pluginList = Plugin::getList( );
@@ -164,7 +171,7 @@ ossimCsm3Loader::List ossimCsm3Loader::getAvailableSensorModelNames( std::string
     return returnVector;
 } 
 
-RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pPluginName,
+RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pluginName,
 		std::string& pSensorModelName, std::string& pSensorState ) const
 {
 	try {
@@ -178,11 +185,11 @@ RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pPluginName,
 			return NULL;
 		}
 
-	    const Plugin* plugin = Plugin::findPlugin( pPluginName );
+	    const Plugin* plugin = Plugin::findPlugin( pluginName );
 		if( plugin == NULL ) 
         {
             ossimNotify(ossimNotifyLevel_WARN)
-                <<  "loadModelFromState: No plugin with the name \"" << pPluginName << "\" was found."
+                <<  "loadModelFromState: No plugin with the name \"" << pluginName << "\" was found."
                 << std::endl;
 			return NULL;
 		}
@@ -228,12 +235,12 @@ RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pPluginName,
 }
 
 
-RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pPluginName,
+RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pluginName,
 		std::string& pSensorModelName, std::string& pInputImage, ossim_uint32 index ) const
 {
 	try {
 		// Make sure the input data is not NULL
-		if( pPluginName.empty() || pSensorModelName.empty() || pInputImage.empty() ) 
+		if( pluginName.empty() || pSensorModelName.empty() || pInputImage.empty() ) 
         {
             ossimNotify(ossimNotifyLevel_WARN)
                 << "loadModelFromFile: Plugin Name, Sensor Model Name, and Image Name must be specified."
@@ -241,11 +248,11 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(  std::string& pPluginName,
 			return NULL;
 		}
 
-	    const Plugin* plugin = Plugin::findPlugin( pPluginName );
+	    const Plugin* plugin = Plugin::findPlugin( pluginName );
 		if( plugin == NULL ) 
         {
             ossimNotify(ossimNotifyLevel_WARN)
-                <<  "loadModelFromFile: No plugin with the name \"" << pPluginName << "\" was found."
+                <<  "loadModelFromFile: No plugin with the name \"" << pluginName << "\" was found."
                 << std::endl;
 			return NULL;
 		}
