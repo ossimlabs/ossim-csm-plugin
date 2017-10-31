@@ -43,7 +43,7 @@ public:
    /*!
     * Returns a list of sensor model names contained in the specified plugin 
     */
-	PluginListList getAvailableSensorModelNames( std::string& pPluginName) const;
+	List getAvailableSensorModelNames( std::string& pPluginName) const;
     void getAvailableSensorModelNames(List& sensors, std::string& pPluginName) const;
     
    /*!
