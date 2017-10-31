@@ -14,6 +14,7 @@
 #include "ossimCsm3SensorModel.h"
 #include <ossim/base/ossimPreferences.h>
 #include <ossim/base/ossimDirectory.h>
+#include <ossim/base/ossimRegExp.h>
 #include <ossim/base/ossimNotify.h>
 #include <csm/Plugin.h>
 #include <csm/NitfIsd.h>
