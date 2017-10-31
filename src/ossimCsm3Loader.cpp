@@ -411,7 +411,23 @@ ossimCsm3SensorModel* ossimCsm3Loader::getSensorModel( std::string& filename, os
     // now try to get available sensor model name and see if we can instantiate a sensor model from it
     RasterGM* internalCsmModel = 0;   
     ossimCsm3Loader::List pluginNames = getAvailablePluginNames( );    
-      
+    ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+    if(!enablePlugins.empty())
+    {
+       ossimRegExp regExp(enablePlugins);
+       for(ossimCsm3Loader::List iter = pluginNames.begin();
+           iter != pluginNames.end();)
+       {
+            if(!regExp.find(*iter.c_str()))
+            {
+                iter = pluginNames.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+       } 
+    }  
     for(int i = 0; i < pluginNames.size(); ++i)
     {
         ossimCsm3Loader::List sensorModelNames = getAvailableSensorModelNames( pluginNames[i] );    
