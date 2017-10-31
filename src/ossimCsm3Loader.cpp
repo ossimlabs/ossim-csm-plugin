@@ -415,7 +415,7 @@ ossimCsm3SensorModel* ossimCsm3Loader::getSensorModel( std::string& filename, os
     if(!enablePlugins.empty())
     {
        ossimRegExp regExp(enablePlugins);
-       for(ossimCsm3Loader::List iter = pluginNames.begin();
+       for(ossimCsm3Loader::List::iterator iter = pluginNames.begin();
            iter != pluginNames.end();)
        {
             if(!regExp.find(*iter.c_str()))
