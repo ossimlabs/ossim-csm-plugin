@@ -179,7 +179,7 @@ RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pluginName,
 {
 	try {
 		// Make sure the input data is not NULL
-		if( pPluginName.empty() || pSensorModelName.empty() || pSensorState.empty() ) 
+		if( pluginName.empty() || pSensorModelName.empty() || pSensorState.empty() ) 
         {
             ossimNotify(ossimNotifyLevel_WARN)
                 << "loadModelFromState: Plugin Name, Sensor Model Name, and sensor state must be specified."
