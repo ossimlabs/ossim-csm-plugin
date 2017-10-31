@@ -42,7 +42,7 @@ static void setDescription(ossimString& description)
             }
             for(auto sensor:sensors)
             {
-                out << "     " << sensor << "\n";g
+                out << "     " << sensor << "\n";
             }
         }  
     }
