@@ -20,22 +20,31 @@
 #include <vector>
 #include <sstream>
 
-static void setDescription(ossimString& description)
+extern "C"
 {
-    std::ostringstream out;
-    out  << "Community Sensor Model 3.0.1 Plugin\n\n";
-    ossimCsm3Loader loader;
-    ossimCsm3Loader::List plugins;
-    ossimCsm3Loader::List sensors;
-    loader.getAvailablePluginNames(plugins);
-    if(!plugins.empty())
-    {
+static ossimSharedObjectInfo  myCsm3Info;
+static ossimString theCsm3Description;
+static std::vector<ossimString> theCsm3ObjList;
+
+static const char* getCsm3Description()
+{
+   if (theCsm3Description.empty())
+   {
+      std::ostringstream out;
+      out  << "Community Sensor Model 3.0.1 Plugin. ";
+      ossimCsm3Loader::List plugins;
+      ossimCsm3Loader::List sensors;
+
+      ossimCsm3Loader::getAvailablePluginNames(plugins);
+
+      if(!plugins.empty())
+      {
         out << "\nAvailable plugins are: \n\n";
         for(auto plugin:plugins)
         {
             out << plugin << "\n";
             sensors.clear();
-            loader.getAvailableSensorModelNames(sensors, plugin);
+            ossimCsm3Loader::getAvailableSensorModelNames(sensors, plugin);
             if(sensors.size())
             {
                 out << "     sensors: \n";
@@ -45,76 +54,50 @@ static void setDescription(ossimString& description)
                 out << "     " << sensor << "\n";
             }
         }  
-    }
-    else
-    {
+      }
+      else
+      {
         out << "No plugins were found in directory.\n\n";
-    }
-
- #if 0 
-    // by this time, the plugins have already been registered by the ossimCsm3ProjectionFactory
-    // the Plugin object should already contain a list of the available plugins
-    // Get the plugins list
-	csm::PluginList pluginList = csm::Plugin::getList( );
-
-    // list all available plugins in the description
-    if(pluginList.empty())
-        out << "No plugins were found in directory.\n\n";
-    else
-    {
-        out << "\nAvailable plugins are: \n\n";
-        // iterate through the PluginList to get the PluginName
-	    for( csm::PluginList::const_iterator i = pluginList.begin(); i != pluginList.end(); i++ ) 
-            out <<  (*i)->getPluginName() << "\n\n";
-    }
-#endif
-    description = out.str();
+      }
+    
+      theCsm3Description = out.str();
+   }
+   return theCsm3Description.c_str();
 }
 
-
-extern "C"
+static int getCsm3NumberOfClassNames()
 {
-    ossimSharedObjectInfo  myInfo;
-    ossimString theDescription;
-    std::vector<ossimString> theObjList;
+   return (int)theCsm3ObjList.size();
+}
 
-    const char* getDescription()
-    {
-        return theDescription.c_str();
-    }
+static const char* getCsm3ClassName(int idx)
+{
+   if(idx < (int)theCsm3ObjList.size())
+   {
+      return theCsm3ObjList[idx].c_str();
+   }
+   return (const char*)0;
+}
 
-    int getNumberOfClassNames()
-    {
-        return (int)theObjList.size();
-    }
+OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
+      ossimSharedObjectInfo** info,  const char* /* options */ )
+{
+   theCsm3ObjList.push_back("ossimCsm3SensorModel");
 
-    const char* getClassName(int idx)
-    {
-        if(idx < (int)theObjList.size())
-        {
-            return theObjList[0].c_str();
-        }
-        return (const char*)0;
-    }
+   myCsm3Info.getDescription = getCsm3Description;
+   myCsm3Info.getNumberOfClassNames = getCsm3NumberOfClassNames;
+   myCsm3Info.getClassName = getCsm3ClassName;
 
-    OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
-        ossimSharedObjectInfo** info,  const char* /* options */ )
-    {    
-        myInfo.getDescription = getDescription;
-        myInfo.getNumberOfClassNames = getNumberOfClassNames;
-        myInfo.getClassName = getClassName;
-      
-        *info = &myInfo;
-        /* Register the ProjectionFactory */
-        ossimProjectionFactoryRegistry::instance()->
-        registerFactoryToFront(ossimCsm3ProjectionFactory::instance());
- 
-        setDescription(theDescription);
-    }
+   *info = &myCsm3Info;
 
-    OSSIM_PLUGINS_DLL void ossimSharedLibraryFinalize()
-    {
-        ossimProjectionFactoryRegistry::instance()->
-            unregisterFactory(ossimCsm3ProjectionFactory::instance());
-    }
+   /* Register the ProjectionFactory */
+   ossimProjectionFactoryRegistry::instance()->
+         registerFactoryToFront(ossimCsm3ProjectionFactory::instance());
+}
+
+OSSIM_PLUGINS_DLL void ossimSharedLibraryFinalize()
+{
+   ossimProjectionFactoryRegistry::instance()->
+         unregisterFactory(ossimCsm3ProjectionFactory::instance());
+}
 }

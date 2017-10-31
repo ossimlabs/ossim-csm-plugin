@@ -13,7 +13,7 @@
 #include "ossimCsm3Loader.h"
 #include <ossim/plugin/ossimPluginConstants.h>
 #include <ossim/projection/ossimProjectionFactoryBase.h>
-#include <list>
+
 
 class ossimProjection;
 class ossimString;
@@ -73,9 +73,8 @@ public:
 
 protected:
 
-    ossimCsm3ProjectionFactory() {}
+    ossimCsm3ProjectionFactory();
     static ossimCsm3ProjectionFactory* theInstance;
-    ossimCsm3Loader theLoader;
 };
 
 #endif
