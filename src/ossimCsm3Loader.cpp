@@ -104,7 +104,7 @@ bool ossimCsm3Loader::removePlugin(const std::string& pluginName)
     return false;
 }
 
-void ossimCsm3Loader::getAvailablePluginNames(std::vector<std::string>& plugins) const
+void ossimCsm3Loader::getAvailablePluginNames(ossimCsm3Loader::List& plugins) const
 {
     plugins.clear();
     PluginList pluginList = Plugin::getList( );
@@ -113,7 +113,7 @@ void ossimCsm3Loader::getAvailablePluginNames(std::vector<std::string>& plugins)
         plugins.push_back( (*i)->getPluginName() );
 }
 
-vector<string> ossimCsm3Loader::getAvailablePluginNames() const
+ossimCsm3Loader::List ossimCsm3Loader::getAvailablePluginNames() const
 {
 	vector<string> result;
     getAvailablePluginNames(result);
@@ -123,32 +123,45 @@ vector<string> ossimCsm3Loader::getAvailablePluginNames() const
 	return result;
 } 
 
-
-vector<string> ossimCsm3Loader::getAvailableSensorModelNames( std::string& pluginName ) const
+void getAvailableSensorModelNames(List& sensors, std::string& pPluginName) const
 {
-	vector<string> returnVector;
-
     // now get the PluginList to get the PluginName
-	PluginList pluginList = Plugin::getList( );
+    PluginList pluginList = Plugin::getList( );
+    PluginList::const_iterator i = pluginList.begin();
 
-	// iterate through the plugins list, looking for the specific Plugin
-	for( PluginList::const_iterator i = pluginList.begin(); i != pluginList.end(); i++ ) 
+    // iterate through the plugins list, looking for the specific Plugin
+    for( ; i != pluginList.end(); i++ ) 
     {
-		if( (*i)->getPluginName() != string(pluginName) )
-			continue;
-
-        // if the plugin is found, return the list of its sensor models
-		for( size_t j = 0; j < (*i)->getNumModels(); j++ ) 
-			returnVector.push_back( (*i)->getModelName( j ) );
-
-		return returnVector;
+        if( (*i)->getPluginName() != string(pluginName) )
     }
 
-    ossimNotify(ossimNotifyLevel_WARN)
-        << "getAvailableSensorModelNames: No plugins were found with the name \"" + pluginName + "\""
-        << std::endl;
+    if(i != pluginList.end())
+    {
+        // if the plugin is found, return the list of its sensor models
+        for( size_t j = 0; j < (*i)->getNumModels(); j++ )
+        {
+            sensors.push_back( (*i)->getModelName( j ) );
+        } 
+    }
+    if(sensors.empty())
+    {
+        if(traceDebug())
+        {
+            ossimNotify(ossimNotifyLevel_WARN)
+                << "getAvailableSensorModelNames: No plugins were found with the name \"" + pluginName + "\""
+                << std::endl;
+        }
+    }
 
-	return returnVector;
+}
+
+ossimCsm3Loader::List ossimCsm3Loader::getAvailableSensorModelNames( std::string& pluginName ) const
+{
+	ossimCsm3Loader::List returnVector;
+
+    getAvailableSensorModelNames(returnVector, pluginName);
+
+    return returnVector;
 } 
 
 RasterGM* ossimCsm3Loader::loadModelFromState(  std::string& pPluginName,
@@ -338,11 +351,11 @@ ossimCsm3SensorModel* ossimCsm3Loader::getSensorModel( std::string& filename, os
 
     // now try to get available sensor model name and see if we can instantiate a sensor model from it
     RasterGM* internalCsmModel = 0;   
-    std::vector<string> pluginNames = getAvailablePluginNames( );    
+    ossimCsm3Loader::List pluginNames = getAvailablePluginNames( );    
       
     for(int i = 0; i < pluginNames.size(); ++i)
     {
-        std::vector<string> sensorModelNames = getAvailableSensorModelNames( pluginNames[i] );    
+        ossimCsm3Loader::List sensorModelNames = getAvailableSensorModelNames( pluginNames[i] );    
         for(int j = 0; j < sensorModelNames.size(); ++j)
         { 
             internalCsmModel = loadModelFromFile( pluginNames[i], sensorModelNames[j], filename, index);

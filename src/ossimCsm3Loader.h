@@ -26,23 +26,25 @@ class ossimCsm3SensorModel;
 class OSSIM_PLUGINS_DLL ossimCsm3Loader 
 {
 public:
+    typedef std::vector<string> List;
    /*!
     * Constructor
     */
     ossimCsm3Loader();
 
-    void getAvailablePluginNames(std::vector<std::string>& plugins) const;
+    void getAvailablePluginNames(List& plugins) const;
 
    /*!
     * Returns available plugins found in plugin path
     * plguin path is specified in prefrence file, in keyword "csm3_plugin_path"
     */
-	std::vector<std::string> getAvailablePluginNames() const;
+	List getAvailablePluginNames() const;
 
    /*!
     * Returns a list of sensor model names contained in the specified plugin 
     */
-	std::vector<std::string> getAvailableSensorModelNames( std::string& pPluginName) const;
+	PluginListList getAvailableSensorModelNames( std::string& pPluginName) const;
+    void getAvailableSensorModelNames(List& sensors, std::string& pPluginName) const;
     
    /*!
     * Returns the sensor model for the specified image file name 
