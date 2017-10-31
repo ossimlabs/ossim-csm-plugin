@@ -123,7 +123,7 @@ ossimCsm3Loader::List ossimCsm3Loader::getAvailablePluginNames() const
 	return result;
 } 
 
-void getAvailableSensorModelNames(List& sensors, std::string& pPluginName) const
+void ossimCsm3Loader::getAvailableSensorModelNames(List& sensors, std::string& pPluginName) const
 {
     // now get the PluginList to get the PluginName
     PluginList pluginList = Plugin::getList( );
