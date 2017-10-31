@@ -47,7 +47,7 @@ if [ $? != 0 ]; then
 fi
   
 echo; echo "Build/install native service locally."
-make -j 8
+make -j 8 install
 if [ $? != 0 ]; then
   echo "Error encountered in build."
   popd; exit 1
