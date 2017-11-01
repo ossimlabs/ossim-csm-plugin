@@ -75,65 +75,65 @@ void ossimCsmLoader::init()
 
          csm::Plugin::setDataDirectory(dataDir.c_str());
       }
+      // get plugin path from the preferences file and verify it
+      ossimFilename pluginPath (ossimPreferences::instance()->findPreference("csm3_plugin_path"));
+      if(pluginPath.empty())
+      {
+         pluginPath = ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path");
+      }
+      if(pluginPath.empty())
+      {
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No CSM plugin path was specified. Make sure that"
+                  " the ossim preferences file contains \"Csm_plugin_path\" entry."<<endl;
+         }
+         return;
+      }
+
+      // Load all of the dynamic libraries in the plugin path
+      // first get the list of all the dynamic libraries found
+      std::vector<ossimFilename> dllfiles;
+      ossimDirectory pluginDir(pluginPath);
+      pluginDir.findAllFilesThatMatch(dllfiles, dylibExt );
+
+      for (int i=0; i<dllfiles.size(); i++)
+      {
+         // when loaded, each dynamic libraries found will register itself in the Plugin object
+         // the list is accessible using  PluginList pluginList = Plugin::getList( )
+
+         ossimDynamicLibrary *lib = new ossimDynamicLibrary;
+         if (!lib->load(dllfiles[i]))
+         {
+            if(traceDebug())
+            {
+               ossimNotify(ossimNotifyLevel_WARN)
+                     << "loadPlugins: " + dllfiles[i] + "\" file failed to load." << std::endl;
+            }
+         }
+      }
 
 #if OSSIM_HAS_MSP
-         try
-         {
-            //cout<<"In ossimCsmLoader Ctor"<<endl;//#### TODO REMOVE
-            MSP::SMS::SensorModelService sms;
-            MSP::SMS::NameList pluginList;
-            sms.getAllRegisteredPlugins(pluginList);
-         }
-         catch(exception &mspError)
-         {
-            if(traceDebug())
-            {
-               ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Exception: " << mspError.what() << "\n";
-            }
-         }
-         catch(...)
-         {
+   try
+   {
+      //cout<<"In ossimCsmLoader Ctor"<<endl;//#### TODO REMOVE
+      MSP::SMS::SensorModelService sms;
+      MSP::SMS::NameList pluginList;
+      sms.getAllRegisteredPlugins(pluginList);
+   }
+   catch(exception &mspError)
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Exception: " << mspError.what() << "\n";
+      }
+   }
+   catch(...)
+   {
 
-         }
+   }
 
 #else
-         // get plugin path from the preferences file and verify it
-         ossimFilename pluginPath (ossimPreferences::instance()->findPreference("csm3_plugin_path"));
-         if(pluginPath.empty())
-         {
-            pluginPath = ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path");
-         }
-         if(pluginPath.empty())
-         {
-            if(traceDebug())
-            {
-               ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No CSM plugin path was specified. Make sure that"
-                     " the ossim preferences file contains \"Csm_plugin_path\" entry."<<endl;
-            }
-            return;
-         }
-
-         // Load all of the dynamic libraries in the plugin path
-         // first get the list of all the dynamic libraries found
-         std::vector<ossimFilename> dllfiles;
-         ossimDirectory pluginDir(pluginPath);
-         pluginDir.findAllFilesThatMatch(dllfiles, dylibExt );
-
-         for (int i=0; i<dllfiles.size(); i++)
-         {
-            // when loaded, each dynamic libraries found will register itself in the Plugin object
-            // the list is accessible using  PluginList pluginList = Plugin::getList( )
-
-            ossimDynamicLibrary *lib = new ossimDynamicLibrary;
-            if (!lib->load(dllfiles[i]))
-            {
-               if(traceDebug())
-               {
-                  ossimNotify(ossimNotifyLevel_WARN)
-                        << "loadPlugins: " + dllfiles[i] + "\" file failed to load." << std::endl;
-               }
-            }
-         }
 #endif
       unloadPlugins();
       initialized = true;
