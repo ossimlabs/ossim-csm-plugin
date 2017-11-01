@@ -58,7 +58,20 @@ static const char* getCsm3Description()
             {
                 out << "     " << sensor << "\n";
             }
-        }  
+        } 
+        ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+        if(!enablePlugins.empty())
+        {
+            out << "\nEnabled plugins pattern: " << enablePlugins << "\n";
+            ossimRegExp regExp(enablePlugins);
+            for(auto plugin:plugins)
+            {
+                if(!regExp.find(plugin.c_str()))
+                {
+                    out << "     " << plugin << "\n";
+                }
+            }
+        }
       }
       else
       {
