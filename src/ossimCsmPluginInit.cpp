@@ -5,13 +5,13 @@
 // Author:  cchuah
 //
 // DESCRIPTION:
-//   Implementation of class ossimCsm3PluginInit
+//   Implementation of class ossimCsmPluginInit
 //
 //**************************************************************************************************
-//  $Id: ossimCsm3PluginInit.cpp 1579 2015-06-08 17:09:57Z cchuah $
+//  $Id: ossimCsmPluginInit.cpp 1579 2015-06-08 17:09:57Z cchuah $
 
-#include "ossimCsm3ProjectionFactory.h"
-#include "ossimCsm3Loader.h"
+#include "ossimCsmProjectionFactory.h"
+#include "ossimCsmLoader.h"
 #include <ossim/base/ossimRegExp.h>
 #include <ossim/base/ossimPreferences.h>
 #include <ossim/plugin/ossimPluginConstants.h>
@@ -27,20 +27,20 @@
 
 extern "C"
 {
-static ossimSharedObjectInfo  myCsm3Info;
-static ossimString theCsm3Description;
-static std::vector<ossimString> theCsm3ObjList;
+static ossimSharedObjectInfo  myCsmInfo;
+static ossimString theCsmDescription;
+static std::vector<ossimString> theCsmObjList;
 
-static const char* getCsm3Description()
+static const char* getCsmDescription()
 {
-   if (theCsm3Description.empty())
+   if (theCsmDescription.empty())
    {
       std::ostringstream out;
       out  << "Community Sensor Model 3.0.1 Plugin. ";
-      ossimCsm3Loader::List plugins;
-      ossimCsm3Loader::List sensors;
+      ossimCsmLoader::List plugins;
+      ossimCsmLoader::List sensors;
 
-      ossimCsm3Loader::getAvailablePluginNames(plugins);
+      ossimCsmLoader::getAvailablePluginNames(plugins);
 
       if(!plugins.empty())
       {
@@ -49,7 +49,7 @@ static const char* getCsm3Description()
         {
             out << plugin << "\n";
             sensors.clear();
-            ossimCsm3Loader::getAvailableSensorModelNames(sensors, plugin);
+            ossimCsmLoader::getAvailableSensorModelNames(sensors, plugin);
             if(sensors.size())
             {
                 out << "     sensors: \n";
@@ -78,21 +78,21 @@ static const char* getCsm3Description()
         out << "No plugins were found in directory.\n\n";
       }
     
-      theCsm3Description = out.str();
+      theCsmDescription = out.str();
    }
-   return theCsm3Description.c_str();
+   return theCsmDescription.c_str();
 }
 
-static int getCsm3NumberOfClassNames()
+static int getCsmNumberOfClassNames()
 {
-   return (int)theCsm3ObjList.size();
+   return (int)theCsmObjList.size();
 }
 
-static const char* getCsm3ClassName(int idx)
+static const char* getCsmClassName(int idx)
 {
-   if(idx < (int)theCsm3ObjList.size())
+   if(idx < (int)theCsmObjList.size())
    {
-      return theCsm3ObjList[idx].c_str();
+      return theCsmObjList[idx].c_str();
    }
    return (const char*)0;
 }
@@ -100,17 +100,17 @@ static const char* getCsm3ClassName(int idx)
 OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
       ossimSharedObjectInfo** info,  const char* /* options */ )
 {
-   theCsm3ObjList.push_back("ossimCsm3SensorModel");
+   theCsmObjList.push_back("ossimCsmSensorModel");
 
-   myCsm3Info.getDescription = getCsm3Description;
-   myCsm3Info.getNumberOfClassNames = getCsm3NumberOfClassNames;
-   myCsm3Info.getClassName = getCsm3ClassName;
+   myCsmInfo.getDescription = getCsmDescription;
+   myCsmInfo.getNumberOfClassNames = getCsmNumberOfClassNames;
+   myCsmInfo.getClassName = getCsmClassName;
 
-   *info = &myCsm3Info;
+   *info = &myCsmInfo;
    /* Register the ProjectionFactory */
    ossimProjectionFactoryRegistry::instance()->
-         registerFactoryToFront(ossimCsm3ProjectionFactory::instance());
-   getCsm3Description();
+         registerFactoryToFront(ossimCsmProjectionFactory::instance());
+   getCsmDescription();
 #if OSSIM_HAS_MSP
     try{
         ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
@@ -143,6 +143,6 @@ OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
 OSSIM_PLUGINS_DLL void ossimSharedLibraryFinalize()
 {
    ossimProjectionFactoryRegistry::instance()->
-         unregisterFactory(ossimCsm3ProjectionFactory::instance());
+         unregisterFactory(ossimCsmProjectionFactory::instance());
 }
 }

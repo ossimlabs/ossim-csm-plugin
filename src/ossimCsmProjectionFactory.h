@@ -5,12 +5,12 @@
 // Author:  cchuah
 //
 //*******************************************************************
-//  $Id: ossimCsm3ProjectionFactory.h 1579 2015-06-08 17:09:57Z cchuah $
+//  $Id: ossimCsmProjectionFactory.h 1579 2015-06-08 17:09:57Z cchuah $
 
-#ifndef ossimCsm3ProjectionFactory_HEADER
-#define ossimCsm3ProjectionFactory_HEADER
+#ifndef ossimCsmProjectionFactory_HEADER
+#define ossimCsmProjectionFactory_HEADER
 
-#include "ossimCsm3Loader.h"
+#include "ossimCsmLoader.h"
 #include <ossim/plugin/ossimPluginConstants.h>
 #include <ossim/projection/ossimProjectionFactoryBase.h>
 
@@ -18,14 +18,14 @@
 class ossimProjection;
 class ossimString;
 
-class OSSIM_PLUGINS_DLL ossimCsm3ProjectionFactory : public ossimProjectionFactoryBase
+class OSSIM_PLUGINS_DLL ossimCsmProjectionFactory : public ossimProjectionFactoryBase
 {
 public:
    /*!
     * METHOD: instance()
     * Instantiates singleton instance of this class:
     */
-    static ossimCsm3ProjectionFactory* instance();
+    static ossimCsmProjectionFactory* instance();
 
    /*!
     * METHOD: createProjection()
@@ -73,8 +73,8 @@ public:
 
 protected:
 
-    ossimCsm3ProjectionFactory();
-    static ossimCsm3ProjectionFactory* theInstance;
+    ossimCsmProjectionFactory();
+    static ossimCsmProjectionFactory* theInstance;
 };
 
 #endif
