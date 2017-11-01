@@ -132,54 +132,56 @@ void ossimCsmLoader::init()
 
 void ossimCsmLoader::unloadPlugins()
 {
+   ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+   ossimString disablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins");
 #if OSSIM_HAS_MSP
-    try{
-        ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
-        ossimString disablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins");
-        MSP::SMS::SensorModelService sms;
-        MSP::SMS::NameList pluginList;
-        sms.getAllRegisteredPlugins(pluginList);
+   try{
+     MSP::SMS::SensorModelService sms;
+     MSP::SMS::NameList pluginList;
+     sms.getAllRegisteredPlugins(pluginList);
 
-        if(!enablePlugins.empty())
-        {
-          ossimRegExp regExp(enablePlugins);
-          for(MSP::SMS::NameList::iterator iter = pluginList.begin();
-              iter != pluginList.end();++iter)
-          {
-              if(!regExp.find((*iter).c_str()))
-              {
-                  bool expel=false;
-                  sms.canPluginBeSafelyExpelled(*iter, expel);
-                  if(expel)
-                  {
-                      sms.expelPlugin(*iter, false);
-                  }
-              }
-          }
-        }
-        else if(!disablePlugins.empty())
-        {
-          ossimRegExp regExp(enablePlugins);
-          for(MSP::SMS::NameList::iterator iter = pluginList.begin();
-              iter != pluginList.end();++iter)
-          {
-              if(!regExp.find((*iter).c_str()))
-              {
-                  bool expel=false;
-                  sms.canPluginBeSafelyExpelled(*iter, expel);
-                  if(expel)
-                  {
-                      sms.expelPlugin(*iter, false);
-                  }
-              }
-          }
-        }
-    }
-    catch(...)
-    {
+     if(!enablePlugins.empty())
+     {
+       ossimRegExp regExp(enablePlugins);
+       for(MSP::SMS::NameList::iterator iter = pluginList.begin();
+           iter != pluginList.end();++iter)
+       {
+           if(!regExp.find((*iter).c_str()))
+           {
+               bool expel=false;
+               sms.canPluginBeSafelyExpelled(*iter, expel);
+               if(expel)
+               {
+                   sms.expelPlugin(*iter, false);
+               }
+           }
+       }
+     }
+     else if(!disablePlugins.empty())
+     {
+       ossimRegExp regExp(enablePlugins);
+       for(MSP::SMS::NameList::iterator iter = pluginList.begin();
+           iter != pluginList.end();++iter)
+       {
+           if(!regExp.find((*iter).c_str()))
+           {
+               bool expel=false;
+               sms.canPluginBeSafelyExpelled(*iter, expel);
+               if(expel)
+               {
+                   sms.expelPlugin(*iter, false);
+               }
+           }
+       }
+     }
+   }
+   catch(...)
+   {
 
-    }
+   }
 
+#else
+    
 #endif
 
 }
