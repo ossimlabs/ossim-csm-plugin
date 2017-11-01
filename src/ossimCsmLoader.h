@@ -87,7 +87,7 @@ public:
 
 
 #if OSSIM_HAS_MSP
- std::shared_ptr<MSP::SMS::SensorModelService> m_sensorModelService;
+ static std::shared_ptr<MSP::SMS::SensorModelService> m_sensorModelService;
 #endif
 };
 
