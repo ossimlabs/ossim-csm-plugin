@@ -47,7 +47,7 @@ static const string dylibExt = ".so";
 #endif
 
 #if OSSIM_HAS_MSP
- static MSP::SMS::SensorModelService ossimCsmLoader::m_sensorModelService;
+MSP::SMS::SensorModelService ossimCsmLoader::m_sensorModelService;
 #endif
 
 ossimCsmLoader::ossimCsmLoader()
