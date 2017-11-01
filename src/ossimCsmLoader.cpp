@@ -157,7 +157,7 @@ void ossimCsmLoader::unloadPlugins()
               }
           }
         }
-        else if(!disablePlugins.enpty())
+        else if(!disablePlugins.empty())
         {
           ossimRegExp regExp(enablePlugins);
           for(MSP::SMS::NameList::iterator iter = pluginList.begin();
