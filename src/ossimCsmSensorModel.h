@@ -11,10 +11,10 @@
 //              So this is a plugin within a plugin architecture.
 //
 //----------------------------------------------------------------------------
-// $Id: ossimCsm3SensorModel.h 1577 2015-06-05 18:47:18Z cchuah $
+// $Id: ossimCsmSensorModel.h 1577 2015-06-05 18:47:18Z cchuah $
 
-#ifndef ossimCsm3SensorModel_HEADER
-#define ossimCsm3SensorModel_HEADER
+#ifndef ossimCsmSensorModel_HEADER
+#define ossimCsmSensorModel_HEADER
 
 
 #include <ossim/plugin/ossimPluginConstants.h>
@@ -23,19 +23,19 @@
 #include <csm/RasterGM.h>
 #include <memory>
 
-class OSSIM_PLUGINS_DLL ossimCsm3SensorModel : public ossimSensorModel
+class OSSIM_PLUGINS_DLL ossimCsmSensorModel : public ossimSensorModel
 {
 public:
    /*!
     * Constructor
     */
-   ossimCsm3SensorModel();
-   ossimCsm3SensorModel( const ossimCsm3SensorModel& src);
-   ossimCsm3SensorModel( csm::RasterGM* model);
+   ossimCsmSensorModel();
+   ossimCsmSensorModel( const ossimCsmSensorModel& src);
+   ossimCsmSensorModel( csm::RasterGM* model);
 
-   virtual ~ossimCsm3SensorModel();
+   virtual ~ossimCsmSensorModel();
 
-   ossimObject* dup() const {return new ossimCsm3SensorModel(*this);}
+   ossimObject* dup() const {return new ossimCsmSensorModel(*this);}
 
    inline virtual bool useForward()const {return false;} //!image to ground faster
 

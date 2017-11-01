@@ -23,9 +23,9 @@ if (MSP_FOUND)
    include_directories(${MSP_INCLUDE_DIRS})
    set( requiredLibs ${requiredLibs} ${MSP_LIBRARIES} )
    set( OSSIM_HAS_MSP 1 )
-   message( "CSM3 plugin is using MSP." )
+   message( "CSM plugin is using MSP." )
 else(MSP_FOUND)
-   message( "Could not find MSP package. Building CSM3 plugin without MSP support. Searching for CSM API")
+   message( "Could not find MSP package. Building CSM plugin without MSP support. Searching for CSM API")
    set( OSSIM_HAS_MSP 0 )
    find_package(CsmApi)
    if (CSMAPI_FOUND)
@@ -37,8 +37,8 @@ else(MSP_FOUND)
    endif()
 endif(MSP_FOUND)
 
-CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/ossimCsm3Config.h.in
-               ${CMAKE_CURRENT_SOURCE_DIR}/src/ossimCsm3Config.h @ONLY)
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/src/ossimCsmConfig.h.in
+               ${CMAKE_CURRENT_SOURCE_DIR}/src/ossimCsmConfig.h @ONLY)
 
 add_subdirectory( src )
 

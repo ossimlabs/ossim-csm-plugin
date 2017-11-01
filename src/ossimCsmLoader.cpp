@@ -4,9 +4,10 @@
 //     See top level LICENSE.txt file for license information
 //
 //**************************************************************************************************
-#include "ossimCsm3Loader.h"
-#include "ossimCsm3SensorModel.h"
+#include "ossimCsmLoader.h"
+#include "ossimCsmSensorModel.h"
 #include <ossim/plugin/ossimDynamicLibrary.h>
+#include <ossim/base/ossimTrace.h>
 #include <ossim/base/ossimPreferences.h>
 #include <ossim/base/ossimDirectory.h>
 #include <ossim/base/ossimNotify.h>
@@ -14,6 +15,8 @@
 #include <csm/NitfIsd.h>
 #include "VTSMisc.h"
 #include <ossim/base/ossimRegExp.h>
+#include <mutex>
+#include <memory>
 
 #if OSSIM_HAS_MSP
 #include <SensorModel/SensorModelService.h>
@@ -30,6 +33,7 @@
 # include <errno.h> // for errno
 #endif
 
+static ossimTrace traceDebug("ossimCsmLoader:debug");
 
 using namespace csm;
 using namespace std;
@@ -42,57 +46,161 @@ typedef void* DllHandle;
 static const string dylibExt = ".so";
 #endif
 
-ossimCsm3Loader::ossimCsm3Loader()
+#if OSSIM_HAS_MSP
+std::shared_ptr<MSP::SMS::SensorModelService> ossimCsmLoader::m_sensorModelService;
+#endif
+
+ossimCsmLoader::ossimCsmLoader()
 {
-   static const char* MODULE = "ossimCsm3Loader Constructor -- ";
+   static const char* MODULE = "ossimCsmLoader Constructor -- ";
+
+   init();
+   
+   return;
+}
+
+void ossimCsmLoader::init()
+{
+   static const char* MODULE = "ossimCsmLoader init -- ";
+   static bool initialized=false;
+   static std::mutex m_initMutex;
+   std::lock_guard<std::mutex> lock(m_initMutex);
+
+   if(!initialized)
+   {
 
 #if OSSIM_HAS_MSP
    try
    {
-      //cout<<"In ossimCsm3Loader Ctor"<<endl;//#### TODO REMOVE
-      MSP::SMS::SensorModelService sms;
+      m_sensorModelService = std::make_shared<MSP::SMS::SensorModelService>();
+      m_sensorModelService->setPluginPreferencesRigorousBeforeRpc();
+      //cout<<"In ossimCsmLoader Ctor"<<endl;//#### TODO REMOVE
       MSP::SMS::NameList pluginList;
-      sms.getAllRegisteredPlugins(pluginList);
+      m_sensorModelService->getAllRegisteredPlugins(pluginList);
    }
    catch(exception &mspError)
    {
-      cout<<"Exception: "<<mspError.what()<<endl;;
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Exception: " << mspError.what() << "\n";
+      }
+   }
+   catch(...)
+   {
+
    }
 
 #else
-   // get plugin path from the preferences file and verify it
-   ossimFilename pluginPath (ossimPreferences::instance()->findPreference("csm3_plugin_path"));
-   if(pluginPath.empty())
-   {
-      ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No CSM plugin path was specified. Make sure that"
-            " the ossim preferences file contains \"csm3_plugin_path\" entry."<<endl;
-      return;
-   }
-
-   // Load all of the dynamic libraries in the plugin path
-   // first get the list of all the dynamic libraries found
-   std::vector<ossimFilename> dllfiles;
-   ossimDirectory pluginDir(pluginPath);
-   pluginDir.findAllFilesThatMatch(dllfiles, dylibExt );
-
-   for (int i=0; i<dllfiles.size(); i++)
-   {
-      // when loaded, each dynamic libraries found will register itself in the Plugin object
-      // the list is accessible using  PluginList pluginList = Plugin::getList( )
-
-      ossimDynamicLibrary *lib = new ossimDynamicLibrary;
-      if (!lib->load(dllfiles[i]))
+      ossimString dataDir = ossimPreferences::instance()->findPreference("ossim.plugins.csm.data_dir");
+      if(!dataDir.empty())
       {
-         ossimNotify(ossimNotifyLevel_WARN)
-         << "loadPlugins: " + dllfiles[i] + "\" file failed to load." << std::endl;
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_INFO) << "Adding data dir to the csm: " << dataDir << "\n";
+         }
+
+         csm::Plugin::setDataDirectory(dataDir.c_str());
       }
-   }
+      // get plugin path from the preferences file and verify it
+      ossimFilename pluginPath (ossimPreferences::instance()->findPreference("csm3_plugin_path"));
+      if(pluginPath.empty())
+      {
+         pluginPath = ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path");
+      }
+      if(pluginPath.empty())
+      {
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No CSM plugin path was specified. Make sure that"
+                  " the ossim preferences file contains \"Csm_plugin_path\" entry."<<endl;
+         }
+         return;
+      }
+
+      // Load all of the dynamic libraries in the plugin path
+      // first get the list of all the dynamic libraries found
+      std::vector<ossimFilename> dllfiles;
+      ossimDirectory pluginDir(pluginPath);
+      pluginDir.findAllFilesThatMatch(dllfiles, dylibExt );
+
+      for (int i=0; i<dllfiles.size(); i++)
+      {
+         // when loaded, each dynamic libraries found will register itself in the Plugin object
+         // the list is accessible using  PluginList pluginList = Plugin::getList( )
+
+         ossimDynamicLibrary *lib = new ossimDynamicLibrary;
+         if (!lib->load(dllfiles[i]))
+         {
+            if(traceDebug())
+            {
+               ossimNotify(ossimNotifyLevel_WARN)
+                     << "loadPlugins: " + dllfiles[i] + "\" file failed to load." << std::endl;
+            }
+         }
+      }
 #endif
-   return;
+      unloadPlugins();
+      initialized = true;
+   }
 }
 
+void ossimCsmLoader::unloadPlugins()
+{
+   ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+   ossimString disablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins");
+#if OSSIM_HAS_MSP
+   try{
+     //MSP::SMS::SensorModelService sms;
+     MSP::SMS::NameList pluginList;
+     m_sensorModelService->getAllRegisteredPlugins(pluginList);
 
-void ossimCsm3Loader::getAvailablePluginNames(List& plugins)
+     if(!enablePlugins.empty())
+     {
+       ossimRegExp regExp(enablePlugins);
+       for(MSP::SMS::NameList::iterator iter = pluginList.begin();
+           iter != pluginList.end();++iter)
+       {
+           if(!regExp.find((*iter).c_str()))
+           {
+               bool expel=false;
+               m_sensorModelService->canPluginBeSafelyExpelled(*iter, expel);
+               if(expel)
+               {
+                   m_sensorModelService->expelPlugin(*iter, false);
+               }
+           }
+       }
+     }
+     else if(!disablePlugins.empty())
+     {
+       ossimRegExp regExp(enablePlugins);
+       for(MSP::SMS::NameList::iterator iter = pluginList.begin();
+           iter != pluginList.end();++iter)
+       {
+           if(regExp.find((*iter).c_str()))
+           {
+               bool expel=false;
+               m_sensorModelService->canPluginBeSafelyExpelled(*iter, expel);
+               if(expel)
+               {
+                   m_sensorModelService->expelPlugin(*iter, false);
+               }
+           }
+       }
+     }
+   }
+   catch(...)
+   {
+
+   }
+
+#else
+
+#endif
+
+}
+
+void ossimCsmLoader::getAllPluginNames(List& plugins)
 {
    plugins.clear();
 
@@ -100,12 +208,22 @@ void ossimCsm3Loader::getAvailablePluginNames(List& plugins)
    MSP::SMS::NameList pluginList;
    try
    {
-      MSP::SMS::SensorModelService sms;
-      sms.getAllRegisteredPlugins(pluginList);
+      m_sensorModelService->getAllRegisteredPlugins(pluginList);
    }
    catch(exception &mspError)
    {
-      cout<<"Exception: "<<mspError.what()<<endl;;
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN) <<"Exception: "<<mspError.what()<<"\n";;
+
+      }
+   }
+   catch(...)
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN) <<"Exception: getAvailablePluginNames\n";
+      }
    }
 
    MSP::SMS::NameList::iterator plugin = pluginList.begin();
@@ -121,10 +239,57 @@ void ossimCsm3Loader::getAvailablePluginNames(List& plugins)
    for( PluginList::const_iterator i = pluginList.begin(); i != pluginList.end(); i++ )
       plugins.push_back( (*i)->getPluginName() );
 #endif
+
+}
+
+void ossimCsmLoader::getAvailablePluginNames(List& plugins)
+{
+   ossimString enablePlugins  = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+   ossimString disablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins");
+   plugins.clear();
+
+   getAllPluginNames(plugins);
+
+   if(!plugins.empty())
+   {
+      if(!enablePlugins.empty())
+      {
+         ossimRegExp regExp(enablePlugins);
+         for(ossimCsmLoader::List::iterator iter = plugins.begin();
+            iter != plugins.end();)
+         {
+            if(!regExp.find((*iter).c_str()))
+            {
+                iter = plugins.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+         } 
+
+      }
+      else if(!disablePlugins.empty())
+      {
+         ossimRegExp regExp(disablePlugins);
+         for(ossimCsmLoader::List::iterator iter = plugins.begin();
+            iter != plugins.end();)
+         {
+            if(regExp.find((*iter).c_str()))
+            {
+                iter = plugins.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+         } 
+      }
+   }
 } 
 
 
-void ossimCsm3Loader::getAvailableSensorModelNames(List& models, const string& pluginName)
+void ossimCsmLoader::getAvailableSensorModelNames(List& models, const string& pluginName)
 {
    models.clear();
 
@@ -132,12 +297,21 @@ void ossimCsm3Loader::getAvailableSensorModelNames(List& models, const string& p
    MSP::SMS::NameList modelList;
    try
    {
-      MSP::SMS::SensorModelService sms;
-      sms.listModels(pluginName, modelList);
+      m_sensorModelService->listModels(pluginName, modelList);
    }
    catch(exception &mspError)
    {
-      cout<<"Exception: "<<mspError.what()<<endl;;
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN) <<"Exception: "<<mspError.what()<<"\n";
+      }
+   }
+   catch(...)
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN) <<"Unknown Exception in getAvailableSensorModelNames\n";
+      }
    }
 
    MSP::SMS::NameList::iterator model = modelList.begin();
@@ -162,24 +336,30 @@ void ossimCsm3Loader::getAvailableSensorModelNames(List& models, const string& p
 
    if (models.empty())
    {
-      ossimNotify(ossimNotifyLevel_WARN)
-                                << "getAvailableSensorModelNames: No plugins were found with the name \"" + pluginName + "\""
-                                << endl;
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)
+                                   << "getAvailableSensorModelNames: No plugins were found with the name \"" + pluginName + "\""
+                                   << endl;
+      }
    }
 } 
 
-RasterGM* ossimCsm3Loader::loadModelFromState(const string& pPluginName,
+RasterGM* ossimCsmLoader::loadModelFromState(const string& pPluginName,
                                               const string& pSensorModelName,
                                               const string& pSensorState )
 {
-   static const char* MODULE = "ossimCsm3Loader::loadModelFromState() -- ";
+   static const char* MODULE = "ossimCsmLoader::loadModelFromState() -- ";
    Model* sensorModel = 0;
    RasterGM* rgm = 0;
 
    // Make sure the input data is not NULL. For MSP, the plugin name and model name are not used:
    if( pSensorState.empty() )
    {
-      ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Sensor state is empty." << std::endl;
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Sensor state is empty.\n";
+      }
       return NULL;
    }
 
@@ -187,21 +367,27 @@ RasterGM* ossimCsm3Loader::loadModelFromState(const string& pPluginName,
    {
 
 #if OSSIM_HAS_MSP
-      MSP::SMS::SensorModelService sms;
-      sensorModel = sms.createModelFromState(pSensorState.c_str());
+//      MSP::SMS::SensorModelService sms;
+      sensorModel = m_sensorModelService->createModelFromState(pSensorState.c_str());
 #else
       // Make sure the input data is not NULL
       if( pPluginName.empty() || pSensorModelName.empty())
       {
-         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Plugin Name and"
-               " Sensor Model Name must be specified." << endl;
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Plugin Name and"
+                  " Sensor Model Name must be specified.\n";
+         }
          return NULL;
       }
       const Plugin* plugin = Plugin::findPlugin( pPluginName );
       if( plugin == NULL )
       {
-         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No plugin "
-               " with the name \"" << pPluginName << "\" was found." << endl;
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No plugin "
+                  " with the name \"" << pPluginName << "\" was found.\n";
+         }
          return NULL;
       }
 
@@ -216,8 +402,11 @@ RasterGM* ossimCsm3Loader::loadModelFromState(const string& pPluginName,
       }
       else
       {
-         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"The specified state cannot be "
-               "used to construct a sensor model."<< endl;
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"The specified state cannot be "
+                  "used to construct a sensor model.\n";
+         }
          return NULL;
       }
 
@@ -231,8 +420,11 @@ RasterGM* ossimCsm3Loader::loadModelFromState(const string& pPluginName,
       }
       else
       {
-         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Failed to create sensor model "
-               "from sensor state."<< endl;
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Failed to create sensor model "
+                  "from sensor state.\n";
+         }
       }
 
    }
@@ -240,17 +432,20 @@ RasterGM* ossimCsm3Loader::loadModelFromState(const string& pPluginName,
    {
       ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Hit exception: "<<e.what()<<endl;
    }
+   catch(...)
+   {
 
+   }
    return rgm;
 }
 
 
-RasterGM* ossimCsm3Loader::loadModelFromFile(const string& pPluginName,
+RasterGM* ossimCsmLoader::loadModelFromFile(const string& pPluginName,
                                              const string& pSensorModelName,
                                              const string& pInputImage,
                                              ossim_uint32 index )
 {
-   static const char* MODULE = "ossimCsm3Loader::loadModelFromFile() -- ";
+   static const char* MODULE = "ossimCsmLoader::loadModelFromFile() -- ";
    Model* sensorModel = NULL;
    RasterGM* rgm = 0;
 
@@ -266,27 +461,32 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(const string& pPluginName,
       try {
 
 #if OSSIM_HAS_MSP
-         MSP::SMS::SensorModelService sms;
+         // MSP::SMS::SensorModelService sms;
          const char* modelName = 0;
          if (pSensorModelName.size())
             modelName = pSensorModelName.c_str();
          MSP::ImageIdentifier entry ("IMAGE_INDEX", ossimString::toString(index).string());
-         sms.setPluginPreferencesRigorousBeforeRpc();
-         sensorModel = sms.createModelFromFile(pInputImage.c_str(), modelName, &entry);
+         sensorModel = m_sensorModelService->createModelFromFile(pInputImage.c_str(), modelName, &entry);
 #else
 
          // Make sure the input data is not NULL
          if( pPluginName.empty())
          {
-            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Plugin Name must be specified."<< endl;
+            if(traceDebug())
+            {
+               ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Plugin Name must be specified.\n";
+            }
             return NULL;
          }
 
          const Plugin* plugin = Plugin::findPlugin( pPluginName );
          if( plugin == NULL )
          {
-            ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No plugin with the name \"" << pPluginName
-                  << "\" was found."<< endl;
+            if(traceDebug())
+            {
+               ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No plugin with the name \"" << pPluginName
+                     << "\" was found.\n";
+            }
             return NULL;
          }
 
@@ -377,52 +577,33 @@ RasterGM* ossimCsm3Loader::loadModelFromFile(const string& pPluginName,
 }
 
 
-ossimCsm3SensorModel* ossimCsm3Loader::getSensorModel(const ossimFilename& filename,
+ossimCsmSensorModel* ossimCsmLoader::getSensorModel(const ossimFilename& filename,
                                                       ossim_uint32 index)
 {
    ostringstream xmsg;
    xmsg<<__FILE__<<": getCsmSensorModel() -- ";
 
-   ossimCsm3SensorModel* model = 0;
+   ossimCsmSensorModel* model = 0;
    string pluginName = "";
    string sensorName = "";
    string fname = filename;
 
    csm::RasterGM* csmModel = 0;
-   ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
    try
    {
 #if OSSIM_HAS_MSP
-      MSP::SMS::SensorModelService sms;
+      // MSP::SMS::SensorModelService sms;
       const char* modelName = 0;
       MSP::ImageIdentifier entry ("IMAGE_INDEX", ossimString::toString(index).string());
-      sms.setPluginPreferencesRigorousBeforeRpc();
-      csm::Model* base = sms.createModelFromFile(filename.c_str(), modelName, &entry);
+      csm::Model* base = m_sensorModelService->createModelFromFile(filename.c_str(), modelName, &entry);
       csmModel = dynamic_cast<csm::RasterGM*>(base);
 #else
-    ossimCsm3Loader::List pluginNames;
+    ossimCsmLoader::List pluginNames;
     getAvailablePluginNames(pluginNames);
-    if(!enablePlugins.empty())
-    {
-        ossimRegExp regExp(enablePlugins);
-        for(ossimCsm3Loader::List::iterator iter = pluginNames.begin();
-            iter != pluginNames.end();)
-        {
-            if(!regExp.find((*iter).c_str()))
-            {
-                iter = pluginNames.erase(iter);
-            }
-            else
-            {
-                ++iter;
-            }
-       } 
-    }  
-
 
     for(int i = 0; i < pluginNames.size(); ++i)
     {
-     ossimCsm3Loader::List sensorModelNames;
+     ossimCsmLoader::List sensorModelNames;
      getAvailableSensorModelNames( sensorModelNames, pluginNames[i] );
      for(int j = 0; j<sensorModelNames.size() && !csmModel; ++j)
         csmModel = loadModelFromFile( pluginNames[i], sensorModelNames[j], filename, index);
@@ -430,8 +611,11 @@ ossimCsm3SensorModel* ossimCsm3Loader::getSensorModel(const ossimFilename& filen
 #endif
       if (csmModel)
       {
-         clog<<"ossimCsm3Loader::getSensorModel()  modelName: "<<csmModel->getModelName()<<endl;
-         model = new ossimCsm3SensorModel(csmModel);
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_INFO) <<"ossimCsmLoader::getSensorModel()  modelName: "<<csmModel->getModelName()<<"\n";
+         }
+         model = new ossimCsmSensorModel(csmModel);
       }
    }
    catch (exception& e)

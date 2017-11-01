@@ -3,20 +3,21 @@
 //
 // DESCRIPTION:
 //	OSSIM sensor model plugin for CSM version 3 plugin.
-//	CSM3 adjustable parameters can be used by setting
+//	Csm adjustable parameters can be used by setting
 //	USE_INTERNAL_ADJUSTABLE_PARAMS to 1. Otherwise a default
 // 	2 parameters intract/crosstrack adjustment is used.
-//	CSM3 API also defines valid image domain and height range.
+//	Csm API also defines valid image domain and height range.
 //	This implementaion ignores those and does not check for 
 // 	valid input range.
 //
 // Author:  cchuah
 //
 //*******************************************************************
-//  $Id: ossimCsm3SensorModel.cpp 1680 2016-01-12 16:27:39Z cchuah $
+//  $Id: ossimCsmSensorModel.cpp 1680 2016-01-12 16:27:39Z cchuah $
 
-#include "ossimCsm3SensorModel.h"
-#include "ossimCsm3Loader.h"
+#include "ossimCsmSensorModel.h"
+#include "ossimCsmLoader.h"
+#include <ossim/base/ossimTrace.h>
 #include <ossim/elevation/ossimElevManager.h>
 #include <ossim/support_data/ossimNitfFile.h>
 #include <ossim/support_data/ossimNitfImageHeader.h>
@@ -32,12 +33,13 @@ static const ossimString PARAM_NAMES[] ={"intrack_offset",
 static const ossimString PARAM_UNITS[] ={"pixel",
                                          "pixel"};
 
+static ossimTrace traceDebug("ossimCsmSensorModel:debug");
 
 using namespace csm;
 
-RTTI_DEF1(ossimCsm3SensorModel, "ossimCsm3SensorModel", ossimSensorModel);
+RTTI_DEF1(ossimCsmSensorModel, "ossimCsmSensorModel", ossimSensorModel);
 
-ossimCsm3SensorModel::ossimCsm3SensorModel()
+ossimCsmSensorModel::ossimCsmSensorModel()
 : m_imageFile(""),
   m_pluginName(""),
   m_sensorName(""),
@@ -47,7 +49,7 @@ ossimCsm3SensorModel::ossimCsm3SensorModel()
 {
 }
 
-ossimCsm3SensorModel::ossimCsm3SensorModel(RasterGM* model)
+ossimCsmSensorModel::ossimCsmSensorModel(RasterGM* model)
 : m_model(model),
   m_modelIsAdjustable(true),
   theIntrackOffset(0.0),
@@ -62,7 +64,7 @@ ossimCsm3SensorModel::ossimCsm3SensorModel(RasterGM* model)
    initializeModel();
 }
 
-ossimCsm3SensorModel::ossimCsm3SensorModel(const ossimCsm3SensorModel& src)
+ossimCsmSensorModel::ossimCsmSensorModel(const ossimCsmSensorModel& src)
 : ossimSensorModel(src),
   m_imageFile(src.m_imageFile), 
   m_pluginName(src.m_pluginName),
@@ -76,12 +78,12 @@ ossimCsm3SensorModel::ossimCsm3SensorModel(const ossimCsm3SensorModel& src)
 
    // can they all be constructed from state?
    string srcState = src.m_model->getModelState();
-   m_model.reset(ossimCsm3Loader::loadModelFromState(m_pluginName, m_sensorName, srcState));
+   m_model.reset(ossimCsmLoader::loadModelFromState(m_pluginName, m_sensorName, srcState));
 }
 
 
 
-ossimCsm3SensorModel::~ossimCsm3SensorModel()
+ossimCsmSensorModel::~ossimCsmSensorModel()
 {
    m_model.reset();
 }
@@ -89,16 +91,17 @@ ossimCsm3SensorModel::~ossimCsm3SensorModel()
 
 // CSM has a valid height range obtained by getValidHeightRange()
 // This method does not check for valid height
-void ossimCsm3SensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
+void ossimCsmSensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
                                                    const double&   heightEllipsoid,
                                                    ossimGpt&       worldPoint) const
 {
-   if (!insideImage(image_point))
-   {
-      worldPoint.makeNan();
-      worldPoint = extrapolate(image_point, heightEllipsoid);
-   }
-   else
+   // commenting this out for now.  We will let the CSM sensor handle the problem of outside the image
+   // if (!insideImage(image_point))
+   // {
+   //    worldPoint.makeNan();
+   //    worldPoint = extrapolate(image_point, heightEllipsoid);
+   // }
+   // else
    {
       double desiredPrecision = 0.001;
       double* achievedPrecision = NULL;
@@ -112,16 +115,21 @@ void ossimCsm3SensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
                                                 achievedPrecision, &warnings);
 
       if (warnings.size() > 0)
-         ossimNotify(ossimNotifyLevel_WARN)
-         << "lineSampleHeightToWorld: " << warnings.begin()->getMessage()
-         << std::endl;
+      {
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)
+            << "lineSampleHeightToWorld: " << warnings.begin()->getMessage()
+            << std::endl;
+         }
+      }
 
       worldPoint = ossimGpt(ossimEcefPoint(ecfGpt.x, ecfGpt.y, ecfGpt.z));
    }
 }
 
 
-void ossimCsm3SensorModel::worldToLineSample(const ossimGpt& worldPoint,
+void ossimCsmSensorModel::worldToLineSample(const ossimGpt& worldPoint,
                                              ossimDpt&       ip) const
 {
    if(worldPoint.isLatNan() || worldPoint.isLonNan())
@@ -140,15 +148,20 @@ void ossimCsm3SensorModel::worldToLineSample(const ossimGpt& worldPoint,
                                                achievedPrecision, &warnings);
 
    if (warnings.size() > 0)
-      ossimNotify(ossimNotifyLevel_WARN)
-      << "worldToLineSample: " << warnings.begin()->getMessage()
-      << std::endl;
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)
+         << "worldToLineSample: " << warnings.begin()->getMessage()
+         << std::endl;
+      }
+   }
 
    ip = ossimDpt(imagePt.samp + theCrtrackOffset, imagePt.line + theIntrackOffset);
 }
 
 
-void ossimCsm3SensorModel::imagingRay(const ossimDpt& image_point,
+void ossimCsmSensorModel::imagingRay(const ossimDpt& image_point,
                                       ossimEcefRay&   image_ray) const
 {
    // std::cout << "imaging Ray .................................\n";
@@ -171,7 +184,7 @@ void ossimCsm3SensorModel::imagingRay(const ossimDpt& image_point,
    return;
 }
 
-void ossimCsm3SensorModel::updateModel()
+void ossimCsmSensorModel::updateModel()
 {
    if(!m_model)
       return;
@@ -193,7 +206,7 @@ void ossimCsm3SensorModel::updateModel()
 //  (in pixels per the applicable model parameter units), respectively,
 //  with respect to the model parameter given by index at the given
 //  groundPt (x,y,z in ECEF meters).
-ossimDpt ossimCsm3SensorModel::computeSensorPartials(int index, const ossimEcefPoint& ecefPt) const
+ossimDpt ossimCsmSensorModel::computeSensorPartials(int index, const ossimEcefPoint& ecefPt) const
 {
    double desiredPrecision = 0.001;
    double* achievedPrecision = NULL;
@@ -204,9 +217,15 @@ ossimDpt ossimCsm3SensorModel::computeSensorPartials(int index, const ossimEcefP
                                                                       desiredPrecision , achievedPrecision, &warnings) ;
 
    if (warnings.size() > 0)
-      ossimNotify(ossimNotifyLevel_WARN)
-      << "computeSensorPartials: " << warnings.begin()->getMessage()
-      << std::endl;
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)
+         << "computeSensorPartials: " << warnings.begin()->getMessage()
+         << std::endl;         
+      }
+
+   }
 
    return ossimDpt(partial.first, partial.second);
 }
@@ -214,7 +233,7 @@ ossimDpt ossimCsm3SensorModel::computeSensorPartials(int index, const ossimEcefP
 
 // This method returns the partial derivatives of line and sample  (a six elements vector)
 //  (in pixels per meter) with respect to the given ecefPt
-std::vector<double> ossimCsm3SensorModel::computeGroundPartials(const ossimEcefPoint& ecefPt) const
+std::vector<double> ossimCsmSensorModel::computeGroundPartials(const ossimEcefPoint& ecefPt) const
 {
    return m_model->computeGroundPartials(EcefCoord(ecefPt.x(), ecefPt.y(), ecefPt.z()));
 }
@@ -225,7 +244,7 @@ std::vector<double> ossimCsm3SensorModel::computeGroundPartials(const ossimEcefP
 //  the metadata.
 // check to see if internal model is adjustable.  If not, initialize a two parameter adjustment
 // providing only line and sample adjustments
-void ossimCsm3SensorModel::initAdjustableParameters()
+void ossimCsmSensorModel::initAdjustableParameters()
 {
    if (getNumberOfAdjustments())
    {
@@ -273,9 +292,9 @@ void ossimCsm3SensorModel::initAdjustableParameters()
 //  This method initializes the base class adjustable parameter and associated
 //  sigmas arrays with quantities specific to this model. Adjustment 0 is 
 //  considered the initial state of the parameters.
-void ossimCsm3SensorModel::initializeModel()
+void ossimCsmSensorModel::initializeModel()
 {
-   //ossimNotify(ossimNotifyLevel_INFO) << "initializing ossimCsm3SensorModel\n" << std::endl;
+   //ossimNotify(ossimNotifyLevel_INFO) << "initializing ossimCsmSensorModel\n" << std::endl;
 
    // this model has not been adjusted
    if (getNumberOfAdjustments() == 0)
@@ -308,7 +327,7 @@ void ossimCsm3SensorModel::initializeModel()
 
    ImageVector size = m_model->getImageSize();
    theImageSize = ossimIpt(size.samp, size.line);
-   //ossimNotify(ossimNotifyLevel_INFO) << "Csm3Sensor image size: " << theImageSize << std::endl;
+   //ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor image size: " << theImageSize << std::endl;
 
    // Note that the model might not be valid over the entire imaging operation.
    // Use getValidImageRange() to get the valid range of image coordinates.
@@ -323,7 +342,7 @@ void ossimCsm3SensorModel::initializeModel()
 
    ossimDrect fullImgRect = ossimDrect(ossimDpt(0, 0),
                                        ossimDpt(theImageSize.samp-1, theImageSize.line-1));
-   //ossimNotify(ossimNotifyLevel_INFO) << "Csm3Sensor Valid Image Range: " << fullImgRect << std::endl;
+   //ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor Valid Image Range: " << fullImgRect << std::endl;
 
    // set theImageClipRect to at most the full image
    theImageClipRect = theImageClipRect.clipToRect(fullImgRect);
@@ -347,19 +366,21 @@ void ossimCsm3SensorModel::initializeModel()
    // get the ref image point and ground point
    EcefCoord refEcefPt = m_model->getReferencePoint();
    theRefGndPt = ossimGpt(ossimEcefPoint(refEcefPt.x, refEcefPt.y, refEcefPt.z));
-   //ossimNotify(ossimNotifyLevel_INFO) << "Csm3Sensor ref Ground Pt: " << theRefGndPt << std::endl;
+   //ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor ref Ground Pt: " << theRefGndPt << std::endl;
 
    double desiredPrecision = 0.001;
    double* achievedPrecision = NULL;
    WarningList warnings;
    ImageCoord refImgPt = m_model->groundToImage(refEcefPt, desiredPrecision,
                                                 achievedPrecision, &warnings);
-//   ossimNotify(ossimNotifyLevel_INFO) << "Csm3Sensor ref Image Pt: " <<
+//   ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor ref Image Pt: " <<
 //         ossimDpt(refImgPt.samp, refImgPt.line)  << std::endl;
-   if (warnings.size() > 0)
+   if ((warnings.size() > 0)&&(traceDebug()))
+   {
       ossimNotify(ossimNotifyLevel_WARN)
       << "initializeModel: Computing refImgPt:\n" << warnings.begin()->getMessage()
       << std::endl;
+   }
    theRefImgPt = ossimDpt(refImgPt.samp, refImgPt.line);
 
    // calculate gsd
@@ -369,9 +390,13 @@ void ossimCsm3SensorModel::initializeModel()
    }
    catch (const ossimException& e)
    {
-      ossimNotify(ossimNotifyLevel_WARN)
-                  << "initializeModel:: computeGsd exception:\n"
-                  << e.what() << std::endl;
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)
+                     << "initializeModel:: computeGsd exception:\n"
+                     << e.what() << std::endl;
+
+      }
    }
 
    // Indicate that all params need to be recomputed:
@@ -380,7 +405,7 @@ void ossimCsm3SensorModel::initializeModel()
 }
 
 
-bool ossimCsm3SensorModel::saveState(ossimKeywordlist& kwl,  const char* prefix) const
+bool ossimCsmSensorModel::saveState(ossimKeywordlist& kwl,  const char* prefix) const
 {
    bool result = ossimSensorModel::saveState(kwl, prefix);
 
@@ -397,7 +422,7 @@ bool ossimCsm3SensorModel::saveState(ossimKeywordlist& kwl,  const char* prefix)
    return result;
 }
 
-bool ossimCsm3SensorModel::loadState(const ossimKeywordlist& kwl, const char* prefix)
+bool ossimCsmSensorModel::loadState(const ossimKeywordlist& kwl, const char* prefix)
 {
    bool result = ossimSensorModel::loadState(kwl, prefix);
 
@@ -407,9 +432,9 @@ bool ossimCsm3SensorModel::loadState(const ossimKeywordlist& kwl, const char* pr
       m_sensorName = kwl.find(prefix, "sensor_name");
       m_imageFile  = kwl.find(prefix, "image_file");
 
-      // restore from csm3 sensor state
+      // restore from Csm sensor state
       ossimString sensorState  = kwl.find(prefix, "csm_sensor_state");
-      m_model.reset(ossimCsm3Loader::loadModelFromState(m_pluginName, m_sensorName, sensorState));
+      m_model.reset(ossimCsmLoader::loadModelFromState(m_pluginName, m_sensorName, sensorState));
    }
 
    return result;

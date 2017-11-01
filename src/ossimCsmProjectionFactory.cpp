@@ -2,47 +2,47 @@
 // License:  See top level LICENSE.txt file.
 //
 // DESCRIPTION:
-//   Contains implementation of class ossimCsm3ProjectionFactory
+//   Contains implementation of class ossimCsmProjectionFactory
 //
 //*****************************************************************************
-//  $Id: ossimCsm3ProjectionFactory.cpp 1577 2015-06-05 18:47:18Z cchuah $
+//  $Id: ossimCsmProjectionFactory.cpp 1577 2015-06-05 18:47:18Z cchuah $
 
-#include "ossimCsm3ProjectionFactory.h"
-#include "ossimCsm3SensorModel.h"
+#include "ossimCsmProjectionFactory.h"
+#include "ossimCsmSensorModel.h"
 #include <ossim/base/ossimKeywordNames.h>
 #include <ossim/projection/ossimProjectionFactoryRegistry.h>
 #include <ossim/base/ossimTrace.h>
 
-static ossimTrace traceDebug("ossimCsm3ProjectionFactory:debug");
+static ossimTrace traceDebug("ossimCsmProjectionFactory:debug");
 
-ossimCsm3ProjectionFactory* ossimCsm3ProjectionFactory::theInstance = 0;
+ossimCsmProjectionFactory* ossimCsmProjectionFactory::theInstance = 0;
 
-ossimCsm3ProjectionFactory* ossimCsm3ProjectionFactory::instance()
+ossimCsmProjectionFactory* ossimCsmProjectionFactory::instance()
 {
     if(!theInstance)
     {
-        theInstance = new ossimCsm3ProjectionFactory;
+        theInstance = new ossimCsmProjectionFactory;
     }
 
-    return (ossimCsm3ProjectionFactory*) theInstance;
+    return (ossimCsmProjectionFactory*) theInstance;
 }
 
-ossimCsm3ProjectionFactory::ossimCsm3ProjectionFactory()
+ossimCsmProjectionFactory::ossimCsmProjectionFactory()
 {
    // Instantiate once to load CSM model dynamic libs
-   ossimCsm3Loader csml;
+   ossimCsmLoader csml;
 }
 
 
-ossimProjection* ossimCsm3ProjectionFactory::createProjection(const ossimFilename& filename,
+ossimProjection* ossimCsmProjectionFactory::createProjection(const ossimFilename& filename,
                                                              ossim_uint32 entryIdx ) const
 {
     string filenameStr = filename.string();
-    ossimProjection* result = ossimCsm3Loader::getSensorModel(filenameStr, entryIdx);
+    ossimProjection* result = ossimCsmLoader::getSensorModel(filenameStr, entryIdx);
     return result;
 }
 
-ossimProjection* ossimCsm3ProjectionFactory::createProjection(const ossimKeywordlist &keywordList,
+ossimProjection* ossimCsmProjectionFactory::createProjection(const ossimKeywordlist &keywordList,
                                                              const char *prefix) const
 {
     const char *lookup = keywordList.find(prefix, ossimKeywordNames::TYPE_KW);
@@ -59,45 +59,45 @@ ossimProjection* ossimCsm3ProjectionFactory::createProjection(const ossimKeyword
     return result;
 }
 
-ossimProjection* ossimCsm3ProjectionFactory::createProjection(const ossimString &name) const
+ossimProjection* ossimCsmProjectionFactory::createProjection(const ossimString &name) const
 {
     ossimProjection* result = 0;
    
-    if(name == STATIC_TYPE_NAME(ossimCsm3SensorModel))
+    if(name == STATIC_TYPE_NAME(ossimCsmSensorModel))
     {
-        result = new ossimCsm3SensorModel();
+        result = new ossimCsmSensorModel();
     }
    
     return result;
 }
 
-ossimObject* ossimCsm3ProjectionFactory::createObject(const ossimString& typeName)const
+ossimObject* ossimCsmProjectionFactory::createObject(const ossimString& typeName)const
 {
     return createProjection(typeName);
 }
 
-ossimObject* ossimCsm3ProjectionFactory::createObject(const ossimKeywordlist& kwl,
+ossimObject* ossimCsmProjectionFactory::createObject(const ossimKeywordlist& kwl,
                                                      const char* prefix)const
 {
     return createProjection(kwl, prefix);
 }
 
-void ossimCsm3ProjectionFactory::getTypeNameList(std::vector<ossimString>& typeList)const
+void ossimCsmProjectionFactory::getTypeNameList(std::vector<ossimString>& typeList)const
 {
-    typeList.push_back(STATIC_TYPE_NAME(ossimCsm3SensorModel));
+    typeList.push_back(STATIC_TYPE_NAME(ossimCsmSensorModel));
 }
 
-std::list<ossimString> ossimCsm3ProjectionFactory::getList()const
+std::list<ossimString> ossimCsmProjectionFactory::getList()const
 {
     std::list<ossimString> result;
     std::string pError;
 
 	vector<string> pluginList;
-	ossimCsm3Loader::getAvailablePluginNames(pluginList);
+	ossimCsmLoader::getAvailablePluginNames(pluginList);
     for (int i=0; i<pluginList.size(); i++)
     {
         vector<string> sensorList;
-        ossimCsm3Loader::getAvailableSensorModelNames( sensorList, pluginList[i] );
+        ossimCsmLoader::getAvailableSensorModelNames( sensorList, pluginList[i] );
         std::copy (sensorList.begin (), sensorList.end (), std::back_inserter (result));
     }
 
