@@ -173,7 +173,7 @@ void ossimCsmLoader::unloadPlugins()
        for(MSP::SMS::NameList::iterator iter = pluginList.begin();
            iter != pluginList.end();++iter)
        {
-           if(!regExp.find((*iter).c_str()))
+           if(regExp.find((*iter).c_str()))
            {
                bool expel=false;
                sms.canPluginBeSafelyExpelled(*iter, expel);
