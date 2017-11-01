@@ -33,7 +33,7 @@
 # include <errno.h> // for errno
 #endif
 
-static ossimStrace traceDebug("ossimCsmLoader:debug");
+static ossimTrace traceDebug("ossimCsmLoader:debug");
 
 using namespace csm;
 using namespace std;
