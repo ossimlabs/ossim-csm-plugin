@@ -62,7 +62,7 @@ static const char* getCsmDescription()
       }
       else
       {
-        out << "No plugins were found in directory.\n\n";
+        out << "No plugins were available.\n\n";
       }
       out << "Keywords and values:\n"
           << "  ossim.plugins.csm.enable_plugins:  " << ossimString(ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins")) << "\n"
