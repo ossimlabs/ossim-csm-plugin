@@ -65,6 +65,28 @@ void ossimCsmLoader::init()
 
    if(!initialized)
    {
+
+#if OSSIM_HAS_MSP
+   try
+   {
+      //cout<<"In ossimCsmLoader Ctor"<<endl;//#### TODO REMOVE
+      MSP::SMS::SensorModelService sms;
+      MSP::SMS::NameList pluginList;
+      sms.getAllRegisteredPlugins(pluginList);
+   }
+   catch(exception &mspError)
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Exception: " << mspError.what() << "\n";
+      }
+   }
+   catch(...)
+   {
+
+   }
+
+#else
       ossimString dataDir = ossimPreferences::instance()->findPreference("ossim.plugins.csm.data_dir");
       if(!dataDir.empty())
       {
@@ -112,28 +134,6 @@ void ossimCsmLoader::init()
             }
          }
       }
-
-#if OSSIM_HAS_MSP
-   try
-   {
-      //cout<<"In ossimCsmLoader Ctor"<<endl;//#### TODO REMOVE
-      MSP::SMS::SensorModelService sms;
-      MSP::SMS::NameList pluginList;
-      sms.getAllRegisteredPlugins(pluginList);
-   }
-   catch(exception &mspError)
-   {
-      if(traceDebug())
-      {
-         ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Exception: " << mspError.what() << "\n";
-      }
-   }
-   catch(...)
-   {
-
-   }
-
-#else
 #endif
       unloadPlugins();
       initialized = true;
