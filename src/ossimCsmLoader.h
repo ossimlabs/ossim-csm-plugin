@@ -19,6 +19,7 @@
 #include <csm/RasterGM.h>
 #include <string>
 #include <vector>
+#include <memory>
 #if OSSIM_HAS_MSP
 #include <SensorModel/SensorModelService.h>
 #endif
@@ -86,7 +87,7 @@ public:
 
 
 #if OSSIM_HAS_MSP
- static MSP::SMS::SensorModelService m_sensorModelService;
+ std::shared_ptr<MSP::SMS::SensorModelService> m_sensorModelService;
 #endif
 };
 

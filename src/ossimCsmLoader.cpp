@@ -72,9 +72,11 @@ void ossimCsmLoader::init()
 #if OSSIM_HAS_MSP
    try
    {
+      m_sensorModelService = std::make_shared<MSP::SMS::SensorModelService>();
+      m_sensorModelService->setPluginPreferencesRigorousBeforeRpc();
       //cout<<"In ossimCsmLoader Ctor"<<endl;//#### TODO REMOVE
       MSP::SMS::NameList pluginList;
-      m_sensorModelService.getAllRegisteredPlugins(pluginList);
+      m_sensorModelService->getAllRegisteredPlugins(pluginList);
    }
    catch(exception &mspError)
    {
@@ -150,7 +152,7 @@ void ossimCsmLoader::unloadPlugins()
    try{
      //MSP::SMS::SensorModelService sms;
      MSP::SMS::NameList pluginList;
-     m_sensorModelService.getAllRegisteredPlugins(pluginList);
+     m_sensorModelService->getAllRegisteredPlugins(pluginList);
 
      if(!enablePlugins.empty())
      {
@@ -161,10 +163,10 @@ void ossimCsmLoader::unloadPlugins()
            if(!regExp.find((*iter).c_str()))
            {
                bool expel=false;
-               m_sensorModelService.canPluginBeSafelyExpelled(*iter, expel);
+               m_sensorModelService->canPluginBeSafelyExpelled(*iter, expel);
                if(expel)
                {
-                   m_sensorModelService.expelPlugin(*iter, false);
+                   m_sensorModelService->expelPlugin(*iter, false);
                }
            }
        }
@@ -178,10 +180,10 @@ void ossimCsmLoader::unloadPlugins()
            if(regExp.find((*iter).c_str()))
            {
                bool expel=false;
-               m_sensorModelService.canPluginBeSafelyExpelled(*iter, expel);
+               m_sensorModelService->canPluginBeSafelyExpelled(*iter, expel);
                if(expel)
                {
-                   m_sensorModelService.expelPlugin(*iter, false);
+                   m_sensorModelService->expelPlugin(*iter, false);
                }
            }
        }
@@ -206,7 +208,7 @@ void ossimCsmLoader::getAllPluginNames(List& plugins)
    MSP::SMS::NameList pluginList;
    try
    {
-      m_sensorModelService.getAllRegisteredPlugins(pluginList);
+      m_sensorModelService->getAllRegisteredPlugins(pluginList);
    }
    catch(exception &mspError)
    {
@@ -295,7 +297,7 @@ void ossimCsmLoader::getAvailableSensorModelNames(List& models, const string& pl
    MSP::SMS::NameList modelList;
    try
    {
-      m_sensorModelService.listModels(pluginName, modelList);
+      m_sensorModelService->listModels(pluginName, modelList);
    }
    catch(exception &mspError)
    {
@@ -366,7 +368,7 @@ RasterGM* ossimCsmLoader::loadModelFromState(const string& pPluginName,
 
 #if OSSIM_HAS_MSP
 //      MSP::SMS::SensorModelService sms;
-      sensorModel = m_sensorModelService.createModelFromState(pSensorState.c_str());
+      sensorModel = m_sensorModelService->createModelFromState(pSensorState.c_str());
 #else
       // Make sure the input data is not NULL
       if( pPluginName.empty() || pSensorModelName.empty())
@@ -430,7 +432,10 @@ RasterGM* ossimCsmLoader::loadModelFromState(const string& pPluginName,
    {
       ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"Hit exception: "<<e.what()<<endl;
    }
+   catch(...)
+   {
 
+   }
    return rgm;
 }
 
@@ -461,8 +466,7 @@ RasterGM* ossimCsmLoader::loadModelFromFile(const string& pPluginName,
          if (pSensorModelName.size())
             modelName = pSensorModelName.c_str();
          MSP::ImageIdentifier entry ("IMAGE_INDEX", ossimString::toString(index).string());
-         m_sensorModelService.setPluginPreferencesRigorousBeforeRpc();
-         sensorModel = m_sensorModelService.createModelFromFile(pInputImage.c_str(), modelName, &entry);
+         sensorModel = m_sensorModelService->createModelFromFile(pInputImage.c_str(), modelName, &entry);
 #else
 
          // Make sure the input data is not NULL
@@ -591,8 +595,7 @@ ossimCsmSensorModel* ossimCsmLoader::getSensorModel(const ossimFilename& filenam
       // MSP::SMS::SensorModelService sms;
       const char* modelName = 0;
       MSP::ImageIdentifier entry ("IMAGE_INDEX", ossimString::toString(index).string());
-      m_sensorModelService.setPluginPreferencesRigorousBeforeRpc();
-      csm::Model* base = m_sensorModelService.createModelFromFile(filename.c_str(), modelName, &entry);
+      csm::Model* base = m_sensorModelService->createModelFromFile(filename.c_str(), modelName, &entry);
       csmModel = dynamic_cast<csm::RasterGM*>(base);
 #else
     ossimCsmLoader::List pluginNames;
