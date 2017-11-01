@@ -144,7 +144,7 @@ void ossimCsmLoader::getAvailablePluginNames(List& plugins)
    {
       if(traceDebug())
       {
-         ossimNotify(ossimNotifyLevel_ERROR) <<"Exception: "<<mspError.what()<<"\n";;
+         ossimNotify(ossimNotifyLevel_WARN) <<"Exception: "<<mspError.what()<<"\n";;
 
       }
    }
@@ -152,7 +152,7 @@ void ossimCsmLoader::getAvailablePluginNames(List& plugins)
    {
       if(traceDebug())
       {
-         ossimNotify(ossimNotifyLevel_ERROR) <<"Exception: getAvailablePluginNames\n";
+         ossimNotify(ossimNotifyLevel_WARN) <<"Exception: getAvailablePluginNames\n";
       }
    }
 
@@ -187,14 +187,14 @@ void ossimCsmLoader::getAvailableSensorModelNames(List& models, const string& pl
    {
       if(traceDebug())
       {
-         ossimNotify(ossimNotifyLevel_ERROR) <<"Exception: "<<mspError.what()<<"\n";
+         ossimNotify(ossimNotifyLevel_WARN) <<"Exception: "<<mspError.what()<<"\n";
       }
    }
    catch(...)
    {
       if(traceDebug())
       {
-         ossimNotify(ossimNotifyLevel_ERROR) <<"Unknown Exception in getAvailableSensorModelNames\n";
+         ossimNotify(ossimNotifyLevel_WARN) <<"Unknown Exception in getAvailableSensorModelNames\n";
       }
    }
 
