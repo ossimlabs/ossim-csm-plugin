@@ -66,7 +66,7 @@ static const char* getCsm3Description()
             ossimRegExp regExp(enablePlugins);
             for(auto plugin:plugins)
             {
-                if(!regExp.find(plugin.c_str()))
+                if(regExp.find(plugin.c_str()))
                 {
                     out << "     " << plugin << "\n";
                 }
