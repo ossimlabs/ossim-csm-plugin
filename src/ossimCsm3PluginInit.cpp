@@ -94,7 +94,10 @@ OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
    myCsm3Info.getClassName = getCsm3ClassName;
 
    *info = &myCsm3Info;
-
+   /* Register the ProjectionFactory */
+   ossimProjectionFactoryRegistry::instance()->
+         registerFactoryToFront(ossimCsm3ProjectionFactory::instance());
+   getCsm3Description();
 #if OSSIM_HAS_MSP
     try{
         ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
@@ -122,9 +125,6 @@ OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
     }
 
 #endif
-   /* Register the ProjectionFactory */
-   ossimProjectionFactoryRegistry::instance()->
-         registerFactoryToFront(ossimCsm3ProjectionFactory::instance());
 }
 
 OSSIM_PLUGINS_DLL void ossimSharedLibraryFinalize()
