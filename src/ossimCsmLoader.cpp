@@ -65,6 +65,16 @@ void ossimCsmLoader::init()
 
    if(!initialized)
    {
+      ossimString dataDir = ossimPreferences::instance()->findPreference("ossim.plugins.csm.data_dir");
+      if(!dataDir.empty())
+      {
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_INFO) << "Adding data dir to the csm: " << dataDir << "\n";
+         }
+
+         csm::Plugin::setDataDirectory(dataDir.c_str());
+      }
 
 #if OSSIM_HAS_MSP
          try
@@ -87,16 +97,6 @@ void ossimCsmLoader::init()
          }
 
 #else
-         ossimString dataDir = ossimPreferences::instance()->findPreference("ossim.plugins.csm.data_dir");
-         if(!dataDir.empty())
-         {
-            if(traceDebug())
-            {
-               ossimNotify(ossimNotifyLevel_INFO) << "Adding data dir to the csm: " << dataDir << "\n";
-            }
-
-            csm::Plugin::setDataDirectory(dataDir.c_str());
-         }
          // get plugin path from the preferences file and verify it
          ossimFilename pluginPath (ossimPreferences::instance()->findPreference("csm3_plugin_path"));
          if(pluginPath.empty())
