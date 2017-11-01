@@ -95,12 +95,13 @@ void ossimCsmSensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
                                                    const double&   heightEllipsoid,
                                                    ossimGpt&       worldPoint) const
 {
-   if (!insideImage(image_point))
-   {
-      worldPoint.makeNan();
-      worldPoint = extrapolate(image_point, heightEllipsoid);
-   }
-   else
+   // commenting this out for now.  We will let the CSM sensor handle the problem of outside the image
+   // if (!insideImage(image_point))
+   // {
+   //    worldPoint.makeNan();
+   //    worldPoint = extrapolate(image_point, heightEllipsoid);
+   // }
+   // else
    {
       double desiredPrecision = 0.001;
       double* achievedPrecision = NULL;
