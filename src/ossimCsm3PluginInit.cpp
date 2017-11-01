@@ -12,6 +12,7 @@
 
 #include "ossimCsm3ProjectionFactory.h"
 #include "ossimCsm3Loader.h"
+#include <ossim/base/ossimRegExp.h>
 #include <ossim/plugin/ossimPluginConstants.h>
 #include <ossim/plugin/ossimSharedObjectBridge.h>
 #include <ossim/projection/ossimProjectionFactoryRegistry.h>
@@ -19,6 +20,9 @@
 
 #include <vector>
 #include <sstream>
+#if OSSIM_HAS_MSP
+#include <SensorModel/SensorModelService.h>
+#endif
 
 extern "C"
 {
@@ -90,6 +94,33 @@ OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
 
    *info = &myCsm3Info;
 
+#if OSSIM_HAS_MSP
+    try{
+        ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+        MSP::SMS::SensorModelService sms;
+        MSP::SMS::NameList pluginList;
+        sms.getAllRegisteredPlugins(pluginList);
+        ossimRegExp regExp(enablePlugins);
+        for(MSP::SMS::NameList::iterator iter = pluginList.begin();
+            iter != pluginList.end();++iter)
+        {
+            if(!regExp.find((*iter).c_str()))
+            {
+                bool expel=false;
+                sms.canPluginBeSafelyExpelled(*iter, expel);
+                if(expel)
+                {
+                    sms.expelPlugin(*iter, false);
+                }
+            }
+        }
+    }
+    catch(...)
+    {
+
+    }
+
+#endif
    /* Register the ProjectionFactory */
    ossimProjectionFactoryRegistry::instance()->
          registerFactoryToFront(ossimCsm3ProjectionFactory::instance());

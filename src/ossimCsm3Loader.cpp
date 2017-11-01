@@ -13,6 +13,7 @@
 #include <csm/Plugin.h>
 #include <csm/NitfIsd.h>
 #include "VTSMisc.h"
+#include <ossim/base/ossimRegExp.h>
 
 #if OSSIM_HAS_MSP
 #include <SensorModel/SensorModelService.h>
@@ -388,6 +389,7 @@ ossimCsm3SensorModel* ossimCsm3Loader::getSensorModel(const ossimFilename& filen
    string fname = filename;
 
    csm::RasterGM* csmModel = 0;
+   ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
    try
    {
 #if OSSIM_HAS_MSP
@@ -398,15 +400,33 @@ ossimCsm3SensorModel* ossimCsm3Loader::getSensorModel(const ossimFilename& filen
       csm::Model* base = sms.createModelFromFile(filename.c_str(), modelName, &entry);
       csmModel = dynamic_cast<csm::RasterGM*>(base);
 #else
-      std::vector<string> pluginNames;
-      getAvailablePluginNames(pluginNames);
-      for(int i = 0; i < pluginNames.size(); ++i)
-      {
-         std::vector<string> sensorModelNames;
-         getAvailableSensorModelNames( sensorModelNames, pluginNames[i] );
-         for(int j = 0; j<sensorModelNames.size() && !csmModel; ++j)
-            csmModel = loadModelFromFile( pluginNames[i], sensorModelNames[j], filename, index);
-      }
+    ossimCsm3Loader::List pluginNames;
+    getAvailablePluginNames(pluginNames);
+    if(!enablePlugins.empty())
+    {
+        ossimRegExp regExp(enablePlugins);
+        for(ossimCsm3Loader::List::iterator iter = pluginNames.begin();
+            iter != pluginNames.end();)
+        {
+            if(!regExp.find((*iter).c_str()))
+            {
+                iter = pluginNames.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+       } 
+    }  
+
+
+    for(int i = 0; i < pluginNames.size(); ++i)
+    {
+     ossimCsm3Loader::List sensorModelNames;
+     getAvailableSensorModelNames( sensorModelNames, pluginNames[i] );
+     for(int j = 0; j<sensorModelNames.size() && !csmModel; ++j)
+        csmModel = loadModelFromFile( pluginNames[i], sensorModelNames[j], filename, index);
+    }
 #endif
       if (csmModel)
       {
