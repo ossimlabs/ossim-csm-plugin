@@ -17,6 +17,7 @@
 
 #include "ossimCsmSensorModel.h"
 #include "ossimCsmLoader.h"
+#include <ossim/base/ossimTrace.h>
 #include <ossim/elevation/ossimElevManager.h>
 #include <ossim/support_data/ossimNitfFile.h>
 #include <ossim/support_data/ossimNitfImageHeader.h>
@@ -32,6 +33,7 @@ static const ossimString PARAM_NAMES[] ={"intrack_offset",
 static const ossimString PARAM_UNITS[] ={"pixel",
                                          "pixel"};
 
+static ossimTrace traceDebug("ossimCsmSensorModel:debug");
 
 using namespace csm;
 
@@ -112,9 +114,14 @@ void ossimCsmSensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
                                                 achievedPrecision, &warnings);
 
       if (warnings.size() > 0)
-         ossimNotify(ossimNotifyLevel_WARN)
-         << "lineSampleHeightToWorld: " << warnings.begin()->getMessage()
-         << std::endl;
+      {
+         if(traceDebug())
+         {
+            ossimNotify(ossimNotifyLevel_WARN)
+            << "lineSampleHeightToWorld: " << warnings.begin()->getMessage()
+            << std::endl;
+         }
+      }
 
       worldPoint = ossimGpt(ossimEcefPoint(ecfGpt.x, ecfGpt.y, ecfGpt.z));
    }
@@ -140,9 +147,14 @@ void ossimCsmSensorModel::worldToLineSample(const ossimGpt& worldPoint,
                                                achievedPrecision, &warnings);
 
    if (warnings.size() > 0)
-      ossimNotify(ossimNotifyLevel_WARN)
-      << "worldToLineSample: " << warnings.begin()->getMessage()
-      << std::endl;
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)
+         << "worldToLineSample: " << warnings.begin()->getMessage()
+         << std::endl;
+      }
+   }
 
    ip = ossimDpt(imagePt.samp + theCrtrackOffset, imagePt.line + theIntrackOffset);
 }
@@ -204,9 +216,15 @@ ossimDpt ossimCsmSensorModel::computeSensorPartials(int index, const ossimEcefPo
                                                                       desiredPrecision , achievedPrecision, &warnings) ;
 
    if (warnings.size() > 0)
-      ossimNotify(ossimNotifyLevel_WARN)
-      << "computeSensorPartials: " << warnings.begin()->getMessage()
-      << std::endl;
+   {
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)
+         << "computeSensorPartials: " << warnings.begin()->getMessage()
+         << std::endl;         
+      }
+
+   }
 
    return ossimDpt(partial.first, partial.second);
 }
@@ -356,10 +374,12 @@ void ossimCsmSensorModel::initializeModel()
                                                 achievedPrecision, &warnings);
 //   ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor ref Image Pt: " <<
 //         ossimDpt(refImgPt.samp, refImgPt.line)  << std::endl;
-   if (warnings.size() > 0)
+   if ((warnings.size() > 0)&&(traceDebug())
+   {
       ossimNotify(ossimNotifyLevel_WARN)
       << "initializeModel: Computing refImgPt:\n" << warnings.begin()->getMessage()
       << std::endl;
+   }
    theRefImgPt = ossimDpt(refImgPt.samp, refImgPt.line);
 
    // calculate gsd
@@ -369,9 +389,13 @@ void ossimCsmSensorModel::initializeModel()
    }
    catch (const ossimException& e)
    {
-      ossimNotify(ossimNotifyLevel_WARN)
-                  << "initializeModel:: computeGsd exception:\n"
-                  << e.what() << std::endl;
+      if(traceDebug())
+      {
+         ossimNotify(ossimNotifyLevel_WARN)
+                     << "initializeModel:: computeGsd exception:\n"
+                     << e.what() << std::endl;
+
+      }
    }
 
    // Indicate that all params need to be recomputed:
