@@ -88,7 +88,7 @@ void ossimCsmLoader::init()
 
 #else
          // get plugin path from the preferences file and verify it
-         ossimFilename pluginPath (ossimPreferences::instance()->findPreference("Csm_plugin_path"));
+         ossimFilename pluginPath (ossimPreferences::instance()->findPreference("csm3_plugin_path"));
          if(pluginPath.empty())
          {
             pluginPath = ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path");
