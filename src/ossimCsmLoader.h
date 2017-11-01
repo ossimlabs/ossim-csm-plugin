@@ -41,7 +41,7 @@ public:
    *
    * This method is already called during the init to apply the enable and disable proeprties
    */ 
-   static void unloadPlugins()
+   static void unloadPlugins();
 
    /*!
     * Returns All plugins

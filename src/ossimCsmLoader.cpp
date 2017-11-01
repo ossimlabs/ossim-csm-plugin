@@ -241,11 +241,11 @@ void ossimCsmLoader::getAvailablePluginNames(List& plugins)
       {
          ossimRegExp regExp(enablePlugins);
          for(ossimCsmLoader::List::iterator iter = plugins.begin();
-            iter != pluginNames.end();)
+            iter != plugins.end();)
          {
             if(!regExp.find((*iter).c_str()))
             {
-                iter = pluginNames.erase(iter);
+                iter = plugins.erase(iter);
             }
             else
             {
@@ -258,11 +258,11 @@ void ossimCsmLoader::getAvailablePluginNames(List& plugins)
       {
          ossimRegExp regExp(disablePlugins);
          for(ossimCsmLoader::List::iterator iter = plugins.begin();
-            iter != pluginNames.end();)
+            iter != plugins.end();)
          {
             if(regExp.find((*iter).c_str()))
             {
-                iter = pluginNames.erase(iter);
+                iter = plugins.erase(iter);
             }
             else
             {
