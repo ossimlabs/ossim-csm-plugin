@@ -64,11 +64,10 @@ static const char* getCsmDescription()
       {
         out << "No plugins were found in directory.\n\n";
       }
-
       out << "Keywords and values:\n"
           << "  ossim.plugins.csm.enable_plugins:  " << ossimString(ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins")) << "\n"
-          << "  ossim.plugins.csm.disable_plugins: " << ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins") << "\n";
-          << "  ossim.plugins.csm.plugin_path:     " << ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path") << "\n";
+          << "  ossim.plugins.csm.disable_plugins: " << ossimString(ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins")) << "\n"
+          << "  ossim.plugins.csm.plugin_path:     " << ossimString(ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path")) << "\n";
 
       theCsmDescription = out.str();
    }
