@@ -95,7 +95,7 @@ void ossimCsmLoader::init()
                ossimNotify(ossimNotifyLevel_INFO) << "Adding data dir to the csm: " << dataDir << "\n";
             }
 
-            Plugin.setDataDirectory(dataDir.c_str());
+            csm::Plugin::setDataDirectory(dataDir.c_str());
          }
          // get plugin path from the preferences file and verify it
          ossimFilename pluginPath (ossimPreferences::instance()->findPreference("csm3_plugin_path"));
