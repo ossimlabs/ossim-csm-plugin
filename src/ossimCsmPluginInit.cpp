@@ -98,10 +98,10 @@ OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
    myCsmInfo.getClassName = getCsmClassName;
 
    *info = &myCsmInfo;
-   /* Register the ProjectionFactory */
-   ossimProjectionFactoryRegistry::instance()->
-         registerFactoryToFront(ossimCsmProjectionFactory::instance());
   ossimCsmLoader::init();
+   /* Register the ProjectionFactory */
+  ossimProjectionFactoryRegistry::instance()->
+         registerFactoryToFront(ossimCsmProjectionFactory::instance());
 
 }
 
