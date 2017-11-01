@@ -46,7 +46,6 @@ typedef void* DllHandle;
 static const string dylibExt = ".so";
 #endif
 
-mutable std::mutex m_jobMutex;
 
 ossimCsmLoader::ossimCsmLoader()
 {
@@ -61,7 +60,8 @@ void ossimCsmLoader::init()
 {
    static const char* MODULE = "ossimCsmLoader init -- ";
    static bool initialized=false;
-   std::lock_guard<std::mutex> lock(m_jobMutex);
+   static std::mutex m_initMutex;
+   std::lock_guard<std::mutex> lock(m_initMutex);
 
    if(!initialized)
    {
