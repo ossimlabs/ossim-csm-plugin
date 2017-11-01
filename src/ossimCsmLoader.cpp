@@ -162,7 +162,7 @@ void ossimCsmLoader::unloadPlugins()
                sms.canPluginBeSafelyExpelled(*iter, expel);
                if(expel)
                {
-                   sms.expelPlugin(*iter, false);
+                   sms.expelPlugin(*iter, true);
                }
            }
        }
@@ -179,7 +179,7 @@ void ossimCsmLoader::unloadPlugins()
                sms.canPluginBeSafelyExpelled(*iter, expel);
                if(expel)
                {
-                   sms.expelPlugin(*iter, false);
+                   sms.expelPlugin(*iter, true);
                }
            }
        }
