@@ -59,25 +59,17 @@ static const char* getCsmDescription()
                 out << "     " << sensor << "\n";
             }
         } 
-        ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
-        if(!enablePlugins.empty())
-        {
-            out << "\nEnabled plugins:\n";
-            ossimRegExp regExp(enablePlugins);
-            for(auto plugin:plugins)
-            {
-                if(regExp.find(plugin.c_str()))
-                {
-                    out << "     " << plugin << "\n";
-                }
-            }
-        }
       }
       else
       {
         out << "No plugins were found in directory.\n\n";
       }
-    
+
+      out << "Keywords and values:\n"
+          << "  ossim.plugins.csm.enable_plugins:  " << ossimString(ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins")) << "\n"
+          << "  ossim.plugins.csm.disable_plugins: " << ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins") << "\n";
+          << "  ossim.plugins.csm.plugin_path:     " << ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path") << "\n";
+
       theCsmDescription = out.str();
    }
    return theCsmDescription.c_str();
@@ -110,34 +102,8 @@ OSSIM_PLUGINS_DLL void ossimSharedLibraryInitialize(
    /* Register the ProjectionFactory */
    ossimProjectionFactoryRegistry::instance()->
          registerFactoryToFront(ossimCsmProjectionFactory::instance());
-   getCsmDescription();
-#if OSSIM_HAS_MSP
-    try{
-        ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
-        MSP::SMS::SensorModelService sms;
-        MSP::SMS::NameList pluginList;
-        sms.getAllRegisteredPlugins(pluginList);
-        ossimRegExp regExp(enablePlugins);
-        for(MSP::SMS::NameList::iterator iter = pluginList.begin();
-            iter != pluginList.end();++iter)
-        {
-            if(!regExp.find((*iter).c_str()))
-            {
-                bool expel=false;
-                sms.canPluginBeSafelyExpelled(*iter, expel);
-                if(expel)
-                {
-                    sms.expelPlugin(*iter, false);
-                }
-            }
-        }
-    }
-    catch(...)
-    {
+  ossimCsmLoader::init();
 
-    }
-
-#endif
 }
 
 OSSIM_PLUGINS_DLL void ossimSharedLibraryFinalize()

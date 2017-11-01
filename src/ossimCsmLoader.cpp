@@ -125,11 +125,66 @@ void ossimCsmLoader::init()
             }
          }
 #endif
+      unloadPlugins();
       initialized = true;
    }
 }
 
-void ossimCsmLoader::getAvailablePluginNames(List& plugins)
+void ossimCsmLoader::unloadPlugins()
+{
+#if OSSIM_HAS_MSP
+    try{
+        ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+        ossimString disablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins");
+        MSP::SMS::SensorModelService sms;
+        MSP::SMS::NameList pluginList;
+        sms.getAllRegisteredPlugins(pluginList);
+
+        if(!enablePlugins.empty())
+        {
+          ossimRegExp regExp(enablePlugins);
+          for(MSP::SMS::NameList::iterator iter = pluginList.begin();
+              iter != pluginList.end();++iter)
+          {
+              if(!regExp.find((*iter).c_str()))
+              {
+                  bool expel=false;
+                  sms.canPluginBeSafelyExpelled(*iter, expel);
+                  if(expel)
+                  {
+                      sms.expelPlugin(*iter, false);
+                  }
+              }
+          }
+        }
+        else if(!disablePlugins.enpty())
+        {
+          ossimRegExp regExp(enablePlugins);
+          for(MSP::SMS::NameList::iterator iter = pluginList.begin();
+              iter != pluginList.end();++iter)
+          {
+              if(!regExp.find((*iter).c_str()))
+              {
+                  bool expel=false;
+                  sms.canPluginBeSafelyExpelled(*iter, expel);
+                  if(expel)
+                  {
+                      sms.expelPlugin(*iter, false);
+                  }
+              }
+          }
+        }
+    }
+    catch(...)
+    {
+
+    }
+
+#endif
+
+}
+
+void ossimCsmLoader::getAllPluginNames(List& plugins)
 {
    plugins.clear();
 
@@ -169,6 +224,53 @@ void ossimCsmLoader::getAvailablePluginNames(List& plugins)
    for( PluginList::const_iterator i = pluginList.begin(); i != pluginList.end(); i++ )
       plugins.push_back( (*i)->getPluginName() );
 #endif
+
+}
+
+void ossimCsmLoader::getAvailablePluginNames(List& plugins)
+{
+   ossimString enablePlugins  = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
+   ossimString disablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.disable_plugins");
+   plugins.clear();
+
+   getAllPluginNames(plugins);
+
+   if(!plugins.empty())
+   {
+      if(!enablePlugins.empty())
+      {
+         ossimRegExp regExp(enablePlugins);
+         for(ossimCsmLoader::List::iterator iter = plugins.begin();
+            iter != pluginNames.end();)
+         {
+            if(!regExp.find((*iter).c_str()))
+            {
+                iter = pluginNames.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+         } 
+
+      }
+      else if(!disablePlugins.empty())
+      {
+         ossimRegExp regExp(disablePlugins);
+         for(ossimCsmLoader::List::iterator iter = plugins.begin();
+            iter != pluginNames.end();)
+         {
+            if(regExp.find((*iter).c_str()))
+            {
+                iter = pluginNames.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+         } 
+      }
+   }
 } 
 
 
@@ -471,7 +573,6 @@ ossimCsmSensorModel* ossimCsmLoader::getSensorModel(const ossimFilename& filenam
    string fname = filename;
 
    csm::RasterGM* csmModel = 0;
-   ossimString enablePlugins = ossimPreferences::instance()->findPreference("ossim.plugins.csm.enable_plugins");
    try
    {
 #if OSSIM_HAS_MSP
@@ -484,23 +585,6 @@ ossimCsmSensorModel* ossimCsmLoader::getSensorModel(const ossimFilename& filenam
 #else
     ossimCsmLoader::List pluginNames;
     getAvailablePluginNames(pluginNames);
-    if(!enablePlugins.empty())
-    {
-        ossimRegExp regExp(enablePlugins);
-        for(ossimCsmLoader::List::iterator iter = pluginNames.begin();
-            iter != pluginNames.end();)
-        {
-            if(!regExp.find((*iter).c_str()))
-            {
-                iter = pluginNames.erase(iter);
-            }
-            else
-            {
-                ++iter;
-            }
-       } 
-    }  
-
 
     for(int i = 0; i < pluginNames.size(); ++i)
     {

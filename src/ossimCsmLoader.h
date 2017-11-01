@@ -33,16 +33,26 @@ public:
    ossimCsmLoader();
 
    static void init();
+
    /**
-   * This will remove plugins based on the property:
-   *  ossim.plugins.csm.enable_plugins: <pattern>
-   * or
-   *  ossim.plugins.csm.disable_plugins: <pattern>
-   */
-   static void removePlugins();
+   * If supported it will try to unload plugins based on the ossim.plugins.csm.enable_plugin and 
+   * ossim.plugins.csm.disable_plugin keywords
+   *
+   *
+   * This method is already called during the init to apply the enable and disable proeprties
+   */ 
+   static void unloadPlugins()
+
+   /*!
+    * Returns All plugins
+    *
+    * For the csm interface it will use the ossim.plugins.csm.plugin_path keyword
+    */
+   static void getAllPluginNames(List& plugins);   
+
    /*!
     * Returns available plugins found in plugin path
-    * plguin path is specified in prefrence file, in keyword "Csm_plugin_path"
+    * plguin path is specified in prefrence file, in keyword "ossim.plugins.csm.plugin_path"
     */
    static void getAvailablePluginNames(List& plugins);
 
