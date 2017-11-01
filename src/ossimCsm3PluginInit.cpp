@@ -13,6 +13,7 @@
 #include "ossimCsm3ProjectionFactory.h"
 #include "ossimCsm3Loader.h"
 #include <ossim/base/ossimRegExp.h>
+#include <ossim/base/ossimPreferences.h>
 #include <ossim/plugin/ossimPluginConstants.h>
 #include <ossim/plugin/ossimSharedObjectBridge.h>
 #include <ossim/projection/ossimProjectionFactoryRegistry.h>
