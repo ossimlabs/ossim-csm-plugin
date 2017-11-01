@@ -89,7 +89,7 @@ void ossimCsmLoader::init()
 #else
          // get plugin path from the preferences file and verify it
          ossimFilename pluginPath (ossimPreferences::instance()->findPreference("Csm_plugin_path"));
-         if(pluginPath.emtpy())
+         if(pluginPath.empty())
          {
             pluginPath = ossimPreferences::instance()->findPreference("ossim.plugins.csm.plugin_path");
          }
@@ -372,7 +372,7 @@ RasterGM* ossimCsmLoader::loadModelFromState(const string& pPluginName,
          if(traceDebug())
          {
             ossimNotify(ossimNotifyLevel_WARN)<<MODULE<<"No plugin "
-                  " with the name \"" << pPluginName << "\" was found.\n"
+                  " with the name \"" << pPluginName << "\" was found.\n";
          }
          return NULL;
       }
