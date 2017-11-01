@@ -374,7 +374,7 @@ void ossimCsmSensorModel::initializeModel()
                                                 achievedPrecision, &warnings);
 //   ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor ref Image Pt: " <<
 //         ossimDpt(refImgPt.samp, refImgPt.line)  << std::endl;
-   if ((warnings.size() > 0)&&(traceDebug())
+   if ((warnings.size() > 0)&&(traceDebug()))
    {
       ossimNotify(ossimNotifyLevel_WARN)
       << "initializeModel: Computing refImgPt:\n" << warnings.begin()->getMessage()
