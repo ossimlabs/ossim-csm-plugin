@@ -36,7 +36,7 @@ static const char* getCsmDescription()
    if (theCsmDescription.empty())
    {
       std::ostringstream out;
-      out  << "Community Sensor Model 3.0.1 Plugin. ";
+      out  << "Community Sensor Model Plugin. Written for CSM spec 3.0.1";
       ossimCsmLoader::List plugins;
       ossimCsmLoader::List sensors;
 
