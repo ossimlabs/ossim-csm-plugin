@@ -43,8 +43,8 @@ public:
    virtual void lineSampleHeightToWorld(const ossimDpt& image_point,
                                         const double&  height,  ossimGpt&   world_point) const;
 
-   virtual void  lineSampleToWorld(const ossimDpt& image_point,
-                                   ossimGpt&       world_point) const;
+   // virtual void  lineSampleToWorld(const ossimDpt& image_point,
+                                   // ossimGpt&       world_point) const;
    /*!
     * CSM API only has imageToGround() method at a specific height
     * so we use base class lineSampleToWorld() which depends on imagingRay() which in turns
