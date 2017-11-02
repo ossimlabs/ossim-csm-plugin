@@ -388,7 +388,7 @@ void ossimCsmSensorModel::initializeModel()
 
    ImageVector size = m_model->getImageSize();
    theImageSize = ossimIpt(size.samp, size.line);
-   ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor image size: " << theImageSize << std::endl;
+   // ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor image size: " << theImageSize << std::endl;
 
    // Note that the model might not be valid over the entire imaging operation.
    // Use getValidImageRange() to get the valid range of image coordinates.
