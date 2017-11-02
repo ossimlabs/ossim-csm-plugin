@@ -25,7 +25,7 @@
 #include <csm/Plugin.h>
 
 //enable internal sensor model adjustment if implemented.  Not throughly tested.
-#define USE_INTERNAL_ADJUSTABLE_PARAMS 0
+#define USE_INTERNAL_ADJUSTABLE_PARAMS 1
 
 // default adjustable parameters if not using internal sensor model adjustments
 static const ossimString PARAM_NAMES[] ={"intrack_offset",
@@ -45,7 +45,8 @@ ossimCsmSensorModel::ossimCsmSensorModel()
   m_sensorName(""),
   m_modelIsAdjustable(true),
   theIntrackOffset(0.0),
-  theCrtrackOffset(0.0)
+  theCrtrackOffset(0.0)//,
+  // m_useImagingRay(true)
 {
 }
 
@@ -53,7 +54,8 @@ ossimCsmSensorModel::ossimCsmSensorModel(RasterGM* model)
 : m_model(model),
   m_modelIsAdjustable(true),
   theIntrackOffset(0.0),
-  theCrtrackOffset(0.0)
+  theCrtrackOffset(0.0)//,
+  // m_useImagingRay(true)
 {
 #if USE_INTERNAL_ADJUSTABLE_PARAMS
    // check for adjustability
@@ -71,7 +73,8 @@ ossimCsmSensorModel::ossimCsmSensorModel(const ossimCsmSensorModel& src)
   m_sensorName(src.m_sensorName),
   m_modelIsAdjustable(true),
   theIntrackOffset(src.theIntrackOffset),
-  theCrtrackOffset(src.theCrtrackOffset)
+  theCrtrackOffset(src.theCrtrackOffset)//,
+  // m_useImagingRay(src.m_useImagingRay)
 {
    // unfortunately there is no copy constructor for csm models, so we get the
    // original sensor state and construct from it
@@ -111,8 +114,15 @@ void ossimCsmSensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
       imagePt.samp = image_point.x - theCrtrackOffset;
       imagePt.line = image_point.y - theIntrackOffset;
 
-      EcefCoord ecfGpt = m_model->imageToGround(imagePt, heightEllipsoid, desiredPrecision,
-                                                achievedPrecision, &warnings);
+      EcefCoord ecfGpt = m_model->imageToGround(imagePt, 
+                                                heightEllipsoid, 
+                                                desiredPrecision,
+                                                achievedPrecision, 
+                                                &warnings);
+      // for(auto warn:warnings)
+      // {
+      //    std::cout << warn.getMessage() << "\n";
+      // }
 
       if (warnings.size() > 0)
       {
@@ -129,9 +139,37 @@ void ossimCsmSensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
 }
 
 
+// void  ossimCsmSensorModel::lineSampleToWorld(const ossimDpt& image_point,
+//                                              ossimGpt&       world_point) const
+// {
+//    if(m_useImagingRay)
+//    {
+//       ossimSensorModel::lineSampleToWorld(image_point, world_point);
+//       return;
+//    }
+
+//    double desiredPrecision = 0.001;
+//    double achievedPrecision;
+//    WarningList warnings;
+//    ImageCoord ic(image_point.y, image_point.x);
+//    EcefCoord ecefCoord = m_model->imageToGround(ic,
+//                                    0.0, // height
+//                                    desiredPrecision,
+//                                    &achievedPrecision,
+//                                    &warnings);
+
+//    world_point = ossimGpt(ossimEcefPoint(ecefCoord.x, ecefCoord.y, ecefCoord.z));
+// }
+
+
 void ossimCsmSensorModel::worldToLineSample(const ossimGpt& worldPoint,
                                              ossimDpt&       ip) const
 {
+   // if(m_useImagingRay)
+   // {
+   //    ossimSensorModel::worldToLineSample(worldPoint, ip);
+   //    return;
+   // }
    if(worldPoint.isLatNan() || worldPoint.isLonNan())
    {
       ip.makeNan();
@@ -160,28 +198,32 @@ void ossimCsmSensorModel::worldToLineSample(const ossimGpt& worldPoint,
    ip = ossimDpt(imagePt.samp + theCrtrackOffset, imagePt.line + theIntrackOffset);
 }
 
-
 void ossimCsmSensorModel::imagingRay(const ossimDpt& image_point,
                                       ossimEcefRay&   image_ray) const
 {
-   // std::cout << "imaging Ray .................................\n";
    if(!m_model)
       return;
-#if 0
+#if 0   
+   try{
+
       double AP = 0.0;
       EcefLocus ecefLocus = m_model->imageToRemoteImagingLocus(ImageCoord(image_point.y, image_point.x),  AP);
       ossimEcefVector v(ecefLocus.direction.x, ecefLocus.direction.y, ecefLocus.direction.z);
       image_ray.setOrigin(ossimEcefPoint(ecefLocus.point.x, ecefLocus.point.y, ecefLocus.point.z));
       image_ray.setDirection(v);
-#else
+      return;
+   }
+   catch(...)
+   {
+
+   }
+#endif
    // get valid height range and use the upper height limit and ellipsoid surface to establish ray:
    std::pair<double,double> hgtRange = m_model->getValidHeightRange();
    ossimGpt start, end;
    lineSampleHeightToWorld(image_point, hgtRange.second, start);
    lineSampleHeightToWorld(image_point, 0.0, end);
    image_ray = ossimEcefRay(start, end);
-#endif
-   return;
 }
 
 void ossimCsmSensorModel::updateModel()
@@ -191,7 +233,8 @@ void ossimCsmSensorModel::updateModel()
 
    if (!m_modelIsAdjustable)
       return;
-
+   theIntrackOffset = 0;
+   theCrtrackOffset = 0;
 #if USE_INTERNAL_ADJUSTABLE_PARAMS
    int nParams = getNumberOfAdjustableParameters();
    for(int idx = 0; idx < nParams; ++idx)
@@ -287,6 +330,25 @@ void ossimCsmSensorModel::initAdjustableParameters()
 #endif
       }
    }
+
+   // Assign the bounding ground polygon:
+   ossimGpt v0, v1, v2, v3;
+   ossimDpt ip0 (0.0, 0.0);
+   lineSampleToWorld(ip0, v0);
+   ossimDpt ip1 (theImageSize.samp-1.0, 0.0);
+   lineSampleToWorld(ip1, v1);
+   ossimDpt ip2 (theImageSize.samp-1.0, theImageSize.line-1.0);
+   lineSampleToWorld(ip2, v2);
+   ossimDpt ip3 (0.0, theImageSize.line-1.0);
+   lineSampleToWorld(ip3, v3);
+
+   theBoundGndPolygon
+   = ossimPolygon (ossimDpt(v0), ossimDpt(v1), ossimDpt(v2), ossimDpt(v3));
+
+   // get the ref image point and ground point
+   EcefCoord refEcefPt = m_model->getReferencePoint();
+   theRefGndPt = ossimGpt(ossimEcefPoint(refEcefPt.x, refEcefPt.y, refEcefPt.z));
+
 }
 
 //  This method initializes the base class adjustable parameter and associated
@@ -327,7 +389,7 @@ void ossimCsmSensorModel::initializeModel()
 
    ImageVector size = m_model->getImageSize();
    theImageSize = ossimIpt(size.samp, size.line);
-   //ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor image size: " << theImageSize << std::endl;
+   // ossimNotify(ossimNotifyLevel_INFO) << "CsmSensor image size: " << theImageSize << std::endl;
 
    // Note that the model might not be valid over the entire imaging operation.
    // Use getValidImageRange() to get the valid range of image coordinates.
@@ -348,6 +410,41 @@ void ossimCsmSensorModel::initializeModel()
    theImageClipRect = theImageClipRect.clipToRect(fullImgRect);
 
    theSubImageOffset = ossimDpt(0,0);  // pixels
+
+   // m_useImagingRay = true;
+   // test if we can do an imaging ray
+   ossimGpt start, end;
+   std::pair<double,double> hgtRange = m_model->getValidHeightRange();
+   ossimDpt midPoint = theImageClipRect.midPoint();
+   // EcefCoord ecefCoord1 = m_model->imageToGround(ImageCoord(), hgtRange.second);
+   // EcefCoord ecefCoord2 = m_model->imageToGround(ImageCoord(), hgtRange.first);
+
+   // start = ossimEcefPoint(ecefCoord1.x, ecefCoord1.y, ecefCoord1.z);
+   // end   = ossimEcefPoint(ecefCoord2.x, ecefCoord2.y, ecefCoord2.z);
+
+
+  lineSampleHeightToWorld(theImageClipRect.midPoint(), hgtRange.second, start);
+  lineSampleHeightToWorld(theImageClipRect.midPoint(), 0.0, end);
+//std::cout << "start: " << start << "\n";
+//std::cout << "end: " << end << "\n";
+   // ossimEcefPoint p1(start);
+   // ossimEcefPoint p2(end);
+   // if(fabs(hgtRange.second) <= FLT_EPSILON)
+   // {
+   //    m_useImagingRay = false;
+   // }
+   // else if(start.isLatNan() || start.isLonNan() || end.isLatNan() || end.isLonNan())
+   // {
+   //    m_useImagingRay = false;
+   // }
+   // else
+   // {
+   //    ossim_float64 len = (p2-p1).length();
+   //    if(len <= FLT_EPSILON)
+   //    {
+   //       m_useImagingRay = false;
+   //    }
+   // }
 
    // Assign the bounding ground polygon:
    ossimGpt v0, v1, v2, v3;
@@ -402,8 +499,14 @@ void ossimCsmSensorModel::initializeModel()
    // Indicate that all params need to be recomputed:
    initChangeFlags();
    updateModel();
-}
 
+   if(traceDebug())
+   {
+      ossimDpt roundTripError;
+      getRoundTripError(theImageClipRect.ul(), roundTripError);
+      ossimNotify(ossimNotifyLevel_INFO) << "ossimCsmSensorModel::initializeModel: Round trip error: " << roundTripError.length() << "\n";
+   }
+}
 
 bool ossimCsmSensorModel::saveState(ossimKeywordlist& kwl,  const char* prefix) const
 {

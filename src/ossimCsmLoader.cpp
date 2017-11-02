@@ -173,7 +173,7 @@ void ossimCsmLoader::unloadPlugins()
      }
      else if(!disablePlugins.empty())
      {
-       ossimRegExp regExp(enablePlugins);
+       ossimRegExp regExp(disablePlugins);
        for(MSP::SMS::NameList::iterator iter = pluginList.begin();
            iter != pluginList.end();++iter)
        {
