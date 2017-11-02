@@ -43,8 +43,8 @@ public:
    virtual void lineSampleHeightToWorld(const ossimDpt& image_point,
                                         const double&  height,  ossimGpt&   world_point) const;
 
-   //virtual void  lineSampleToWorld(const ossimDpt& image_point,
-   //                                ossimGpt&       world_point) const;
+   virtual void  lineSampleToWorld(const ossimDpt& image_point,
+                                   ossimGpt&       world_point) const;
    /*!
     * CSM API only has imageToGround() method at a specific height
     * so we use base class lineSampleToWorld() which depends on imagingRay() which in turns
@@ -93,7 +93,7 @@ public:
 
    //! Perhaps consumers will want direct access to CSM.
    std::shared_ptr<csm::RasterGM> getCsmModel() { return m_model; }
-   virtual bool isAffectedByElevation() const { return m_useImagingRay; }
+   // virtual bool isAffectedByElevation() const { return m_useImagingRay; }
 
 protected:
    enum AdjustParamIndex
@@ -112,7 +112,7 @@ protected:
    ossimString m_sensorName;
    ossimFilename m_imageFile;
    bool m_modelIsAdjustable;
-   bool m_useImagingRay;
+   // bool m_useImagingRay;
 
    TYPE_DATA
 };

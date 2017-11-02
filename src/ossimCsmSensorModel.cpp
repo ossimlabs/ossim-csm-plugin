@@ -45,8 +45,8 @@ ossimCsmSensorModel::ossimCsmSensorModel()
   m_sensorName(""),
   m_modelIsAdjustable(true),
   theIntrackOffset(0.0),
-  theCrtrackOffset(0.0),
-  m_useImagingRay(true)
+  theCrtrackOffset(0.0)//,
+  // m_useImagingRay(true)
 {
 }
 
@@ -54,8 +54,8 @@ ossimCsmSensorModel::ossimCsmSensorModel(RasterGM* model)
 : m_model(model),
   m_modelIsAdjustable(true),
   theIntrackOffset(0.0),
-  theCrtrackOffset(0.0),
-  m_useImagingRay(true)
+  theCrtrackOffset(0.0)//,
+  // m_useImagingRay(true)
 {
 #if USE_INTERNAL_ADJUSTABLE_PARAMS
    // check for adjustability
@@ -73,8 +73,8 @@ ossimCsmSensorModel::ossimCsmSensorModel(const ossimCsmSensorModel& src)
   m_sensorName(src.m_sensorName),
   m_modelIsAdjustable(true),
   theIntrackOffset(src.theIntrackOffset),
-  theCrtrackOffset(src.theCrtrackOffset),
-  m_useImagingRay(src.m_useImagingRay)
+  theCrtrackOffset(src.theCrtrackOffset)//,
+  // m_useImagingRay(src.m_useImagingRay)
 {
    // unfortunately there is no copy constructor for csm models, so we get the
    // original sensor state and construct from it
@@ -161,14 +161,15 @@ void ossimCsmSensorModel::lineSampleHeightToWorld(const ossimDpt& image_point,
 //    world_point = ossimGpt(ossimEcefPoint(ecefCoord.x, ecefCoord.y, ecefCoord.z));
 // }
 
+
 void ossimCsmSensorModel::worldToLineSample(const ossimGpt& worldPoint,
                                              ossimDpt&       ip) const
 {
-   if(m_useImagingRay)
-   {
-      ossimSensorModel::worldToLineSample(worldPoint, ip);
-      return;
-   }
+   // if(m_useImagingRay)
+   // {
+   //    ossimSensorModel::worldToLineSample(worldPoint, ip);
+   //    return;
+   // }
    if(worldPoint.isLatNan() || worldPoint.isLonNan())
    {
       ip.makeNan();
@@ -410,7 +411,7 @@ void ossimCsmSensorModel::initializeModel()
 
    theSubImageOffset = ossimDpt(0,0);  // pixels
 
-   m_useImagingRay = true;
+   // m_useImagingRay = true;
    // test if we can do an imaging ray
    ossimGpt start, end;
    std::pair<double,double> hgtRange = m_model->getValidHeightRange();
