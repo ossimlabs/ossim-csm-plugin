@@ -66,7 +66,8 @@ node ( "" ) {
            }
        }
        stage("Deliver Artifacts"){
-            dir("${env.WORKSPACE}"){
+            dir("${env.WORKSPACE}/ossim-csm-plugin"){
+
               step([$class: 'S3BucketPublisher',
                     dontWaitForConcurrentBuildCompletion: false,
                     entries: [
