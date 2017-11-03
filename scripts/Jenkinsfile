@@ -65,6 +65,29 @@ node ( "" ) {
               archiveArtifacts artifacts:"*.tgz"
            }
        }
+       stage("Deliver Artifacts"){
+            dir("${env.WORKSPACE}"){
+              step([$class: 'S3BucketPublisher',
+                    dontWaitForConcurrentBuildCompletion: false,
+                    entries: [
+                               [bucket: "o2-delivery/${OSSIM_GIT_BRANCH}/ossim",
+                               excludedFile: '',
+                               flatten: false,
+                               gzipFiles: false,
+                               keepForever: false,
+                               managedArtifacts: false,
+                               noUploadOnFailure: false,
+                               selectedRegion: 'us-east-1',
+                               showDirectlyInBrowser: true,
+                               sourceFile: "*.tgz",
+                               storageClass: 'STANDARD',
+                               uploadFromSlave: false,
+                               useServerSideEncryption: false],
+
+                    profileName: 'o2-cicd',
+                    userMetadata: []])
+            }
+       }
     }
 
     catch( e ) {
