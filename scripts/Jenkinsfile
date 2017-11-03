@@ -82,9 +82,9 @@ node ( "" ) {
                                sourceFile: "*.tgz",
                                storageClass: 'STANDARD',
                                uploadFromSlave: false,
-                               useServerSideEncryption: false],
+                               useServerSideEncryption: false]]
 
-                    profileName: 'o2-cicd',
+                    profileName: 'o2-cicd'],
                     userMetadata: []])
             }
        }
