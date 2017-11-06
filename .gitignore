@@ -31,5 +31,5 @@
 *.out
 *.app
 
-src/ossimCsm3Config.h
+src/ossimCsmConfig.h
 
