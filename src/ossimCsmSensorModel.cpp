@@ -357,6 +357,10 @@ void ossimCsmSensorModel::initAdjustableParameters()
 void ossimCsmSensorModel::initializeModel()
 {
    //ossimNotify(ossimNotifyLevel_INFO) << "initializing ossimCsmSensorModel\n" << std::endl;
+   if (!m_model)
+      return;
+
+   m_sensorName = m_model->getModelName();
 
    // this model has not been adjusted
    if (getNumberOfAdjustments() == 0)

@@ -595,6 +595,9 @@ ossimCsmSensorModel* ossimCsmLoader::getSensorModel(const ossimFilename& filenam
       // MSP::SMS::SensorModelService sms;
       const char* modelName = 0;
       MSP::ImageIdentifier entry ("IMAGE_INDEX", ossimString::toString(index).string());
+
+      // Give preference to rigorous model in the case of multiple model entries:
+      m_sensorModelService->setPluginPreferencesRigorousBeforeRpc();
       csm::Model* base = m_sensorModelService->createModelFromFile(filename.c_str(), modelName, &entry);
       csmModel = dynamic_cast<csm::RasterGM*>(base);
 #else
