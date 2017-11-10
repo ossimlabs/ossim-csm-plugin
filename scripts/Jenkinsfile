@@ -17,9 +17,7 @@ node ( "" ) {
     env.OSSIM_INSTALL_PREFIX = "${ env.WORKSPACE }/ossim"
     env.MSP_INSTALL_DIR = "/usr/local/msp-1.5"
     env.MSP_HOME = "/usr/local/msp-1.5"
-    env.CSM_HOME = "/usr/local/csm3"
-    def omarCommonProjName = "omar-common"
-    env.OMAR_COMMON_PROPERTIES="${ env.WORKSPACE }/${ omarCommonProjName }/omar-common-properties.gradle"
+    env.CSM_HOME = "/usr/local/csm"
     try {
         stage( "Checkout" ) {
             dir( "ossim-ci" ) {
@@ -27,9 +25,6 @@ node ( "" ) {
             }
             dir( "ossim-csm-plugin" ) {
                 git branch: "${ OSSIM_GIT_BRANCH }", url: "https://github.com/ossimlabs/ossim-csm-plugin.git"
-            }
-            dir(omarCommonProjName) {
-                git branch: "${OSSIM_GIT_BRANCH}", url: "https://github.com/ossimlabs/${omarCommonProjName}.git"
             }
             notifyObj = load "${ env.WORKSPACE }/ossim-ci/jenkins/pipeline/notify.groovy"
         }
