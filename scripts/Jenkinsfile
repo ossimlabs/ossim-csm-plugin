@@ -43,8 +43,8 @@ node ( "" ) {
 
         stage( "Build" ) {
             sh """
-                println "WORKSPACE            = ${env.WORKSPACE}"
-                println "OSSIM_INSTALL_PREFIX = ${env.OSSIM_INSTALL_PREFIX}"
+                echo env.WORKSPACE
+                echo env.OSSIM_INSTALL_PREFIX
                 mkdir -p ${ env.OSSIM_INSTALL_PREFIX }
                 tar xfz install.tgz -C ${ env.OSSIM_INSTALL_PREFIX }
                 mv ${ env.OSSIM_INSTALL_PREFIX }/install/* ${ env.OSSIM_INSTALL_PREFIX }
