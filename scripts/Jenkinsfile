@@ -46,7 +46,7 @@ node ( "" ) {
                 echo "WORKSPACE            = ${env.WORKSPACE}"
                 echo "OSSIM_INSTALL_PREFIX = ${env.OSSIM_INSTALL_PREFIX}"
                 mkdir -p ${ env.OSSIM_INSTALL_PREFIX }
-                tar xfz install.tgz -C ${ env.OSSIM_INSTALL_PREFIX }
+                tar xfz ossim-install.tgz -C ${ env.OSSIM_INSTALL_PREFIX }
                 mv ${ env.OSSIM_INSTALL_PREFIX }/install/* ${ env.OSSIM_INSTALL_PREFIX }
                  
                 rm -rf ${ env.WORKSPACE }/build/CMakeCache.txt
