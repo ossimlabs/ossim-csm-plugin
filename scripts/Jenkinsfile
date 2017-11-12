@@ -55,9 +55,10 @@ node ( "" ) {
         }
 
         stage("Archive"){
-       dir("${env.WORKSPACE}/ossim-csm-plugin"){
-           sh "tar cvfz ossim-csm-plugin-install.tgz install"
-           archiveArtifacts artifacts:"*.tgz"
+            dir("${env.WORKSPACE}/ossim-csm-plugin") {
+               sh "tar cvfz ossim-csm-plugin-install.tgz install"
+               archiveArtifacts artifacts:"*.tgz"
+            }
        }
        stage("Deliver Artifacts"){
             dir("${env.WORKSPACE}/ossim-csm-plugin"){
