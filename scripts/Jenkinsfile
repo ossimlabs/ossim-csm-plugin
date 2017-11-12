@@ -51,15 +51,13 @@ node ( "" ) {
                  
                 rm -rf ${ env.WORKSPACE }/build/CMakeCache.txt
                 ${ env.WORKSPACE }/ossim-csm-plugin/scripts/buildNative.sh
-                cd ${ env.WORKSPACE }/ossim-csm-plugin
-                tar cvfz ossim-csm-plugin-install.tgz install
             """
         }
 
         stage("Archive"){
-           dir( "ossim-csm-plugin" ) {
-              archiveArtifacts artifacts:"*.tgz"
-           }
+       dir("${env.WORKSPACE}/ossim-csm-plugin"){
+           sh "tar cvfz ossim-csm-plugin-install.tgz install"
+           archiveArtifacts artifacts:"*.tgz"
        }
        stage("Deliver Artifacts"){
             dir("${env.WORKSPACE}/ossim-csm-plugin"){
