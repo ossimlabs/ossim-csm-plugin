@@ -8,6 +8,9 @@ include(OssimVersion)
 include(OssimCommonVariables)
 include(OssimUtilities)
 
+SET(CMAKE_LIBRARY_PATH "${CMAKE_LIBRARY_PATH};${OSSIM_INSTALL_PREFIX}/lib${LIBSUFFIX};/usr/lib;/usr/local/lib;/usr/lib64;/usr/lib/x86_64-linux-gnu")
+SET(CMAKE_INCLUDE_PATH "${CMAKE_INCLUDE_PATH};${OSSIM_INSTALL_PREFIX}/include;${OSSIM_DEV_HOME}/ossim/include;/usr/include;/usr/local/include")
+
 MESSAGE( STATUS "\n========================== CMAKE FINAL SETTINGS ==========================" )
 MESSAGE( STATUS "CMAKE_MODULE_PATH           = ${CMAKE_MODULE_PATH}")
 MESSAGE( STATUS "CMAKE_IGNORE_PATH           = ${CMAKE_IGNORE_PATH}")
