@@ -20,7 +20,7 @@ endif(OSSIM_INSTALL_PLUGINS_WITH_VERSION)
 
 OSSIM_LINK_LIBRARY(${LIB_NAME}
                    COMPONENT_NAME ossim TYPE "${OSSIM_PLUGIN_LINK_TYPE}"
-		   LIBRARIES ${requiredLibs}
+                   LIBRARIES ${requiredLibs}
                    HEADERS "${OSSIMPLUGIN_HEADERS}" 
-		   SOURCE_FILES "${OSSIMPLUGIN_SRCS}"
+                   SOURCE_FILES "${OSSIMPLUGIN_SRCS}"
                    INSTALL_LIB)
