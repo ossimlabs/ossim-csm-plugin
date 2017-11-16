@@ -1,4 +1,3 @@
-#!groovy
 //==================================================================================================
 // This is the Jenkins pipeline script for building the OMAR GIT Mirror application.
 // Environment varialbes that MUST be passed in by Jenkins:
