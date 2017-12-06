@@ -20,20 +20,22 @@ node ( "" ) {
     env.CSM_HOME = "/usr/local/csm"
     try {
         stage( "Checkout" ) {
-            dir( "ossim-ci" ) {
-                git branch: "${ OSSIM_GIT_BRANCH }", url: 'https://github.com/ossimlabs/ossim-ci.git'
-            }
             dir( "ossim-csm-plugin" ) {
-                git branch: "${ OSSIM_GIT_BRANCH }", url: "https://github.com/ossimlabs/ossim-csm-plugin.git"
+                git branch: "${ OSSIM_GIT_BRANCH }", url: "${GIT_PUBLIC_SERVER_URL}/ossim-csm-plugin.git"
             }
-            notifyObj = load "${ env.WORKSPACE }/ossim-ci/jenkins/pipeline/notify.groovy"
         }
 
         echo "WORKSPACE: ${ env.WORKSPACE }"
 
         stage( "Download Artifacts" ) {
             dir( "${ env.WORKSPACE }" ) {
-                step ([ $class: "CopyArtifact",
+               step ([$class: "CopyArtifact",
+                      projectName: "ossim-ci-${OSSIM_GIT_BRANCH}",
+                      filter: "ossim-ci-${OSSIM_GIT_BRANCH}.tgz",
+                      flatten: true])
+               sh "tar xvfz ossim-ci-${OSSIM_GIT_BRANCH}.tgz"
+               notifyObj = load "${env.WORKSPACE}/ossim-ci/jenkins/pipeline/notify.groovy"
+               step ([ $class: "CopyArtifact",
                     projectName: "ossim-${ OSSIM_GIT_BRANCH }",
                     filter: "artifacts/ossim-install.tgz",
                     flatten: true ])
