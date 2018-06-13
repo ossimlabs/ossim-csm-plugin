@@ -13,6 +13,7 @@
 def notifyObj
 node ( "" ) {
     env.WORKSPACE = pwd()
+    def appName = "ossim-csm-plugin"
     env.MAKE_VERBOSE = "${ MAKE_VERBOSE }"
     env.OSSIM_INSTALL_PREFIX = "${ env.WORKSPACE }/ossim"
     env.MSP_INSTALL_DIR = "/usr/local/msp-1.5"
@@ -92,7 +93,22 @@ node ( "" ) {
         currentBuild.result = "FAILED"
         notifyObj?.notifyFailed()
     }
-
+try {
+        stage('SonarQube analysis') {
+            withSonarQubeEnv('sonar_cloud') {
+                // requires SonarQube Scanner for Gradle 2.1+
+                // It's important to add --info because of SONARJNKNS-281
+                sh """
+                  pushd ${env.WORKSPACE}/${appName}/
+                  sonar-scanner
+                  popd
+                """
+            }
+        }
+    }
+    catch (e) {
+        echo e.toString()
+    }
     stage( "Clean Workspace" ) {
         step([ $class: 'WsCleanup' ])
     }
