@@ -11,7 +11,7 @@
 //==================================================================================================
 
 def notifyObj
-node ( "" ) {
+node ("ossim-build") {
     env.WORKSPACE = pwd()
     def appName = "ossim-csm-plugin"
     env.MAKE_VERBOSE = "${ MAKE_VERBOSE }"
