@@ -4,8 +4,8 @@
 //    OSSIM_GIT_BRANCH: The tag of the branch to be built. Typically dev or master.
 //
 // Environment varaibles that MUST be set in the Jenkins global environment (manage jenkins -> configure system -> environment varaibles)
-//    ARTIFACTORY_USER: The user to use when pushing artifacts
-//    ARTIFACTORY_PASSWORD: The password to use when pushing artifacts
+//    REPOSITORY_MANAGER_USER: The user to use when pushing artifacts
+//    REPOSITORY_MANAGER_PASSWORD: The password to use when pushing artifacts
 //    OPENSHIFT_USERNAME: The user to use logging into the docker registry
 //    OPENSHIFT_PASSWORD: The password to use logging into the docker registry
 //==================================================================================================
