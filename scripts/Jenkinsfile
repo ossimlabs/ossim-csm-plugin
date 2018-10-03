@@ -109,29 +109,7 @@ try {
     catch (e) {
         echo e.toString()
     }
-    
-     
-    try {
-         stage('HPFortify Analysis') {
-            dir(appName) {
-               sh """
-                  export PATH=${PATH}:/opt/HPE_Security/Fortify_SCA_and_Apps_17.20/bin
-                  sourceanalyzer -64 -b ${appName} -clean
-                  sourceanalyzer -64 -b ${appName} g++ /media/ephemeral0/jenkins/workspace/${appName}-dev/${appName}/**/*.cpp /media/ephemeral0/jenkins/workspace/${appName}-dev/${appName}/**/*.h           
-                  sourceanalyzer -64 -b ${appName} -scan -Xmx8G -f fortifyResults-${appName}.fpr
-                  ReportGenerator -format pdf -f fortifyResults-${appName}.pdf -source fortifyResults-${appName}.fpr
-                  aws s3 cp fortifyResults-${appName}.pdf s3://o2-private/hpfortify/fortify-reports/
-                  fortifyclient -url http://hpfortify.ossim.io:8080/ssc -authtoken 02c59c7f-a092-45c3-be81-9b7f9dae5728 uploadFPR -file fortifyResults-${appName}.fpr -applicationVersionID 2
-               """
-         }
-      }
-   }
-   catch (e)
-   {
-      echo e.toString()
-   }
-    
-    
+       
     stage( "Clean Workspace" ) {
         step([ $class: 'WsCleanup' ])
     }
