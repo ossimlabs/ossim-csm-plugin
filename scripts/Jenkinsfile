@@ -117,7 +117,7 @@ try {
                sh """
                   export PATH=${PATH}:/opt/HPE_Security/Fortify_SCA_and_Apps_17.20/bin
                   sourceanalyzer -64 -b ${appName} -clean
-                  sourceanalyzer -64 -b ${appName} g++ /media/ephemeral0/jenkins/workspace/${appName}-dev/${appName}/**/*.cpp           
+                  sourceanalyzer -64 -b ${appName} g++ /media/ephemeral0/jenkins/workspace/${appName}-dev/${appName}/**/*.cpp /media/ephemeral0/jenkins/workspace/${appName}-dev/${appName}/**/*.h           
                   sourceanalyzer -64 -b ${appName} -scan -Xmx8G -f fortifyResults-${appName}.fpr
                   ReportGenerator -format pdf -f fortifyResults-${appName}.pdf -source fortifyResults-${appName}.fpr
                   aws s3 cp fortifyResults-${appName}.pdf s3://o2-private/hpfortify/fortify-reports/
