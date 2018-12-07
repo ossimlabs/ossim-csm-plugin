@@ -90,7 +90,10 @@ try {
     catch (e) {
         echo e.toString()
     }
-    stage( "Clean Workspace" ) {
-        step([ $class: 'WsCleanup' ])
+       
+    stage("Clean Workspace")
+    {
+        if ("${CLEAN_WORKSPACE}" == "true")
+            step([$class: 'WsCleanup'])
     }
 }
