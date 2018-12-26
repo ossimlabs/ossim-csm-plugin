@@ -13,15 +13,10 @@ SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{OSSIM_CXX_FLAGS}" )
 # Inject HP Fortify into C++ compilation if requested
 IF ( "$ENV{BUILD_FORTIFY}" STREQUAL "true" )
    MESSAGE("Building with HP Fortify...")
-
-   MESSAGE("ORIGINAL COMPILER to ${CMAKE_CXX_COMPILER}")
+   
    SET( ORIGINAL_COMPILER "${CMAKE_CXX_COMPILER}" )
-
    SET( CMAKE_CXX_COMPILER "/opt/HPE_Security/Fortify_SCA_and_Apps_17.20/bin/sourceanalyzer" )
    SET( CMAKE_CXX_FLAGS "-b ossimlabs ${ORIGINAL_COMPILER} ${CMAKE_CXX_FLAGS} " )
-
-   MESSAGE("CMAKE_CXX_FLAGS to ${CMAKE_CXX_FLAGS}")
-   MESSAGE("CMAKE_CXX_COMPILER to ${CMAKE_CXX_COMPILER}")
 ENDIF()
 
 MESSAGE( STATUS "\n========================== CMAKE FINAL SETTINGS ==========================" )
