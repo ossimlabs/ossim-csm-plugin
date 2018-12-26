@@ -47,7 +47,7 @@ if [ $? != 0 ]; then
 fi
   
 echo; echo "Build/install native service locally."
-/opt/HPE_Security/Fortify_SCA_and_Apps_17.20/bin/sourceanalyzer -b ossim make -j 8 install
+/opt/HPE_Security/Fortify_SCA_and_Apps_17.20/bin/sourceanalyzer -b ossimlabs make -j 8 install
 if [ $? != 0 ]; then
   echo "Error encountered in build."
   popd; exit 1
