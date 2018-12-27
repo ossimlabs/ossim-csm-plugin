@@ -30,8 +30,13 @@ echo "  MSP_HOME             = $MSP_HOME"
 echo "  CSM_HOME             = $CSM_HOME"
 echo "  CMAKE_DIR            = $CMAKE_DIR"
 
+if [ "${BUILD_FORTIFY}" == "true" ] ; then
+  INSERT_FORTIFY_TOOLCHAIN=-DCMAKE_TOOLCHAIN_FILE=${CMAKE_DIR}/fortify/fortify_linux_toolchain.cmake
+  echo;echo "Building with fortify toolchain"; echo
+fi
+
 echo; echo "Generate makefiles."
-cmake \
+cmake "$INSERT_FORTIFY_TOOLCHAIN" \
 -DCMAKE_BUILD_TYPE="RelWithDebug" \
 -DOSSIM_INSTALL_PREFIX=$OSSIM_INSTALL_PREFIX \
 -DOSSIM_DEV_HOME=$OSSIM_DEV_HOME \
