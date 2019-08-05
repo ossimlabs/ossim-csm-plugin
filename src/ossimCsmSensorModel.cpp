@@ -36,6 +36,7 @@ static const ossimString PARAM_UNITS[] ={"pixel",
 static ossimTrace traceDebug("ossimCsmSensorModel:debug");
 
 using namespace csm;
+using namespace std;
 
 RTTI_DEF1(ossimCsmSensorModel, "ossimCsmSensorModel", ossimSensorModel);
 

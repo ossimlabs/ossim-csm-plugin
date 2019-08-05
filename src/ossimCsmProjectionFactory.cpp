@@ -15,6 +15,8 @@
 
 static ossimTrace traceDebug("ossimCsmProjectionFactory:debug");
 
+using namespace std;
+
 ossimCsmProjectionFactory* ossimCsmProjectionFactory::theInstance = 0;
 
 ossimCsmProjectionFactory* ossimCsmProjectionFactory::instance()
