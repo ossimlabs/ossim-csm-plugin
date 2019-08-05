@@ -37,7 +37,7 @@ node ("${BUILD_NODE}") {
 
         stage( "Checkout" ) {
             dir( "ossim-csm-plugin" ) {
-                git branch: "${ OSSIM_GIT_BRANCH }", 
+                git branch: "std",
                 url: "${GIT_PUBLIC_SERVER_URL}/ossim-csm-plugin.git",
                 credentialsId: "${CREDENTIALS_ID}"
             }
