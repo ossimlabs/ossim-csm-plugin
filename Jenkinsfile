@@ -37,7 +37,7 @@ node ("${BUILD_NODE}") {
 
         stage( "Checkout" ) {
             dir( "ossim-csm-plugin" ) {
-                git branch: "${ OSSIM_GIT_BRANCH }", 
+                git branch: "std",
                 url: "${GIT_PUBLIC_SERVER_URL}/ossim-csm-plugin.git",
                 credentialsId: "${CREDENTIALS_ID}"
             }
@@ -116,7 +116,7 @@ node ("${BUILD_NODE}") {
         }
 
         stage('Fortify SCA') {
-            if(BUILD_FORTIFY == "true"){
+            if(BUILD_WITH_FORTIFY == "true"){
                 dir("${env.WORKSPACE}/build") {
                     withCredentials([[$class: 'UsernamePasswordMultiBinding',
                             credentialsId: 'fortifyCredentials',
