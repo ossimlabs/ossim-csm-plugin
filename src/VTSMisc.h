@@ -105,9 +105,9 @@ void compareParam(std::vector<std::string> param_array,
 		  std::vector<bool> &pass_fail);
 
 void compareParam(std::vector<std::string> param_array,
-		  map<int, double> act_val,
-		  map<int, double> &comp_answer,
-		  map<int, bool> &pass_fail);
+		  std::map<int, double> act_val,
+		  std::map<int, double> &comp_answer,
+		  std::map<int, bool> &pass_fail);
 
 void compareParam(std::vector<std::string> param_array,
 		  double *act_val,
@@ -116,12 +116,12 @@ void compareParam(std::vector<std::string> param_array,
 
 void compareParam(std::vector<std::string> param_array,
 		  std::vector<std::string> act_val,
-		  map<int, bool> &pass_fail);
+		  std::map<int, bool> &pass_fail);
 
 void compareParam(std::vector<std::string> param_array,
-		  map<int, double> act_val,
-		  map<int, double> &comp_answer,
-		  map<int, bool> &pass_fail);
+		  std::map<int, double> act_val,
+		  std::map<int, double> &comp_answer,
+		  std::map<int, bool> &pass_fail);
 
 // recordLog I
 void recordLog(std::string datafile,
