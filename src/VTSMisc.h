@@ -42,7 +42,6 @@
 #include <string>
 
 using namespace csm; 
-using namespace std; 
 //class Plugin;
 
 #define MAXINPUTPARAMETERS      30
