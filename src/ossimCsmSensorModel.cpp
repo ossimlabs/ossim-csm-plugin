@@ -41,21 +41,25 @@ using namespace std;
 RTTI_DEF1(ossimCsmSensorModel, "ossimCsmSensorModel", ossimSensorModel);
 
 ossimCsmSensorModel::ossimCsmSensorModel()
-: m_imageFile(""),
+: theIntrackOffset(0.0),
+  theCrtrackOffset(0.0),
+  m_model(),
   m_pluginName(""),
   m_sensorName(""),
-  m_modelIsAdjustable(true),
-  theIntrackOffset(0.0),
-  theCrtrackOffset(0.0)//,
+  m_imageFile(""),
+  m_modelIsAdjustable(true)
   // m_useImagingRay(true)
 {
 }
 
 ossimCsmSensorModel::ossimCsmSensorModel(RasterGM* model)
-: m_model(model),
-  m_modelIsAdjustable(true),
-  theIntrackOffset(0.0),
-  theCrtrackOffset(0.0)//,
+: theIntrackOffset(0.0),
+  theCrtrackOffset(0.0),
+  m_model(model),
+  m_pluginName(""),
+  m_sensorName(""),
+  m_imageFile(""),
+  m_modelIsAdjustable(true)
   // m_useImagingRay(true)
 {
 #if USE_INTERNAL_ADJUSTABLE_PARAMS
@@ -69,12 +73,13 @@ ossimCsmSensorModel::ossimCsmSensorModel(RasterGM* model)
 
 ossimCsmSensorModel::ossimCsmSensorModel(const ossimCsmSensorModel& src)
 : ossimSensorModel(src),
-  m_imageFile(src.m_imageFile), 
+  theIntrackOffset(src.theIntrackOffset),
+  theCrtrackOffset(src.theCrtrackOffset),
+  m_model(),
   m_pluginName(src.m_pluginName),
   m_sensorName(src.m_sensorName),
-  m_modelIsAdjustable(true),
-  theIntrackOffset(src.theIntrackOffset),
-  theCrtrackOffset(src.theCrtrackOffset)//,
+  m_imageFile(src.m_imageFile), 
+  m_modelIsAdjustable(src.m_modelIsAdjustable)
   // m_useImagingRay(src.m_useImagingRay)
 {
    // unfortunately there is no copy constructor for csm models, so we get the
@@ -399,10 +404,10 @@ void ossimCsmSensorModel::initializeModel()
    // Note that the model might not be valid over the entire imaging operation.
    // Use getValidImageRange() to get the valid range of image coordinates.
    std::pair<ImageCoord,ImageCoord> valSize = m_model->getValidImageRange();
-   double l0 = valSize.first.line;
-   double s0 = valSize.first.samp;
-   double l1 = valSize.second.line;
-   double s1 = valSize.second.samp;
+   // double l0 = valSize.first.line;
+   // double s0 = valSize.first.samp;
+   // double l1 = valSize.second.line;
+   // double s1 = valSize.second.samp;
 
    theImageClipRect = ossimDrect(ossimDpt(valSize.first.samp,valSize.first.line),
                                  ossimDpt(valSize.second.samp,valSize.second.line));
@@ -420,7 +425,7 @@ void ossimCsmSensorModel::initializeModel()
    // test if we can do an imaging ray
    ossimGpt start, end;
    std::pair<double,double> hgtRange = m_model->getValidHeightRange();
-   ossimDpt midPoint = theImageClipRect.midPoint();
+   // ossimDpt midPoint = theImageClipRect.midPoint();
    // EcefCoord ecefCoord1 = m_model->imageToGround(ImageCoord(), hgtRange.second);
    // EcefCoord ecefCoord2 = m_model->imageToGround(ImageCoord(), hgtRange.first);
 

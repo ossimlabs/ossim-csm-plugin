@@ -176,8 +176,8 @@ void reportError(Error* err, const char* logFile);
 //void initFilenameISD (Isd *isdfilename, 
 //		      std::string isd);
 
-void initBytestreamISD(BytestreamIsd *bytestream, std::string filename)  
-     throw (Error);
+void initBytestreamISD(BytestreamIsd *bytestream, std::string filename);
+// throw (Error);
 
 OSSIM_PLUGINS_DLL void initNitf20ISD(Nitf20Isd *isd,
                    std::string fname,
@@ -195,10 +195,10 @@ FILE * fillBuff (std::string fname,
 #else
                     struct stat64 &statbuf,
 #endif
-                    char **buff) throw (Error);
+                 char **buff);//  throw (Error);
 
-std::string readStateFile( std::string fname) throw (Error);
-void writeStateFile(std::string fname, std::string state) throw (Error);
+std::string readStateFile( std::string fname); //  throw (Error);
+void writeStateFile(std::string fname, std::string state); //  throw (Error);
 
 void parseFile(Nitf20Isd *isd,
                FILE *ifile,
@@ -257,7 +257,7 @@ void parseDes(Nitf21Isd *isd,
 
 char* getSegment( FILE *ifile,
                   const size_t offset,
-		  const size_t bufferSize)  throw (Error);
+		  const size_t bufferSize); //  throw (Error);
 
 void dumpHdr(Nitf20Isd *isd);
 
