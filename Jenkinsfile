@@ -2,7 +2,7 @@ properties([
     parameters ([
         string(name: 'BUILD_NODE', defaultValue: 'omar-build', description: 'The build node to run on'),
         string(name: 'MAKE_VERBOSE', defaultValue: 'VERBOSE=true', description: ''),
-        string(name: 'OSSIM_GIT_BRANCH', defaultValue: '${BRANCH}', description: 'Used to specify the git branch we are building and executing'),
+        string(name: 'OSSIM_GIT_BRANCH', defaultValue: ${BRANCH}, description: 'Used to specify the git branch we are building and executing'),
         booleanParam(name: 'BUILD_WITH_FORTIFY', defaultValue: false, description: 'Check to build and scan source using HP Fortify tool'),
         booleanParam(name: 'CLEAN_WORKSPACE', defaultValue: true, description: 'Clean the workspace at the end of the run')
     ]),
