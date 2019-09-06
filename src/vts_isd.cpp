@@ -99,7 +99,7 @@ void initFilenameISD( Isd *isdfilename,
 ///////////////////////////////////////////////////////////////
 void initBytestreamISD( BytestreamIsd *bytestream,
                         std::string filename)
-   throw (Error)
+//   throw (Error)
 {
    Error err;
    const size_t bufflen = 1048576;
@@ -303,11 +303,11 @@ FILE * fillBuff( std::string fname,
 #else
 				 struct stat64 &statbuf,
 #endif
-                 char** buff) throw (Error)
+                 char** buff) //  throw (Error)
 {
    Error csmerr;
    FILE *ifile = NULL;
-   const size_t MAXNITFFILEHDRLEN = 999999;
+   const off_t MAXNITFFILEHDRLEN = 999999;
 
 #ifdef _WIN32
    off_t buffsize;     // st_size is defined as off_t
@@ -349,7 +349,7 @@ FILE * fillBuff( std::string fname,
    }
    // open ok
    size_t size = fread (*buff, 1, buffsize, ifile);
-   if (size != buffsize)
+   if ((off_t)size != buffsize)
    {
       std::string errstr ("failure reading input file " + fname);
       csmerr.setError (Error::FILE_READ,
@@ -435,7 +435,7 @@ size_t GetBufferS(const char* pBuffer, size_t offset, int length)
 //  Returns: Nothing
 //
 ///////////////////////////////////////////////////////////////
-void DisplayValue(const char* str)
+void DisplayValue(const char* /* str */)
 {
    //if(nitfDebugFlag)
    //{
@@ -537,7 +537,7 @@ void DisplayValue(const char* pName, size_t start)
 {
    char chstart[200];
    sprintf(chstart, "%llu", (unsigned long long)start);
-   char OutputString[200];
+   char OutputString[208];
    sprintf(OutputString, "%s start: %s",pName, chstart);
    DisplayValue(OutputString);
 }
@@ -959,7 +959,7 @@ void parseFile(Nitf21Isd *isd,
 			   WarningList* warnings)
 {
    Error err;                      //----- Error class
-   Warning *warn = NULL;           //----- Warning class
+   // Warning *warn = NULL;           //----- Warning class
    char OutputString[200];            //----- Output String
    size_t fl;		              //----- file length
    int hl;	                      //----- header length
@@ -1289,8 +1289,8 @@ void parseImages(Nitf20Isd * isd,
                  const int HeaderLength,
                  const std::vector<size_t> vImageHdrLengths,
                  const std::vector<size_t> vImageLengths,
-                 const int imageIndex,
-				 const int NUMI)
+                 const int /* imageIndex */,
+                 const int NUMI)
 {
    int numComments;                     //----- Number cf comments
    int CommentLength = 80;              //----- Length of Comments
@@ -1495,8 +1495,8 @@ void parseImages(Nitf21Isd * isd,
                  const int HeaderLength,
                  const std::vector <size_t> vImageHdrLengths,
                  const std::vector <size_t> vImageLengths,
-                 const int imageIndex,
-				 const int NUMI)
+                 const int /* imageIndex */,
+                 const int NUMI)
 {
    const int ICORDS_OFFSET = 371;            //----- Offset to the Coords field
    const int ICORDS_LEN = 60;                //----- Length of the Coords field
@@ -1842,7 +1842,7 @@ void parseDes(Nitf21Isd *isd,
 ///////////////////////////////////////////////////////////////
 char* getSegment(FILE *pFile,
                  const size_t offset,
-		 const size_t bufferSize)  throw (Error)
+		 const size_t bufferSize)//   throw (Error)
 {
    char* buff = NULL;
    size_t bytesRead;                   //----- Number of Bytes read
@@ -2589,7 +2589,7 @@ void dumpHdr(Nitf20Isd *isd)
    std::cout << "***************** END OF FILE HEADER *************\n";
 
    std::cout << isd->fileTres().size() << " fileTRE records\n";
-   for (i = 0; i < isd->fileTres().size(); i++)
+   for (i = 0; i < (int)isd->fileTres().size(); i++)
    {
       if ( isd->fileTres().size() > 0)
       {
@@ -2609,7 +2609,7 @@ void dumpHdr(Nitf20Isd *isd)
       std::cout << "***************** END OF IMAGE HEADER *************\n";
       std::cout  << isd->images()[i].imageTres().size() << " TREs in image "
 	         << i + 1 << std::endl;
-      for (int j = 0; j < isd->images()[i].imageTres().size(); j++)
+      for (int j = 0; j < (int)isd->images()[i].imageTres().size(); j++)
       {
 	    std::cout << "\tname   " << isd->images()[i].imageTres()[j].name()
 		      << std::endl;
@@ -2658,7 +2658,7 @@ void dumpHdr(Nitf21Isd *isd)
 
    std::cout << "***************** END OF FILE HEADER *************\n";
    std::cout << isd->fileTres().size() << " fileTre records\n";
-   for (i = 0; i < isd->fileTres().size(); i++)
+   for (i = 0; i < (int)isd->fileTres().size(); i++)
    {
 	 std::cout << "\trecord |";
 	 printchar(isd->fileTres()[i].data().c_str(), isd->fileTres()[i].length());
@@ -2675,7 +2675,7 @@ void dumpHdr(Nitf21Isd *isd)
       std::cout << "***************** END OF IMAGE HEADER *************\n";
       std::cout  << isd->images()[i].imageTres().size() << " TREs in image "
 	         << i + 1 << std::endl;
-      for (int j = 0; j < isd->images()[i].imageTres().size(); j++)
+      for (int j = 0; j < (int)isd->images()[i].imageTres().size(); j++)
       {
 	    std::cout << "\tname   " << isd->images()[i].imageTres()[j].name()
 		      << std::endl;
@@ -2717,7 +2717,7 @@ void dumpHdr(Nitf21Isd *isd)
 //      Returns: none
 //
 ///////////////////////////////////////////////////////////////
-void writeStateFile(std::string fname, std::string state) throw (Error)
+void writeStateFile(std::string fname, std::string state)//  throw (Error)
 {
    Error csmerr;
    size_t buffsize;
@@ -2772,7 +2772,7 @@ void writeStateFile(std::string fname, std::string state) throw (Error)
 //  Returns: state_from_file - Data read from the requested file
 //
 ///////////////////////////////////////////////////////////////
-std::string readStateFile(std::string fname) throw (Error)
+std::string readStateFile(std::string fname)// throw (Error)
 {
    Error csmerr;
    FILE *ifile = NULL;

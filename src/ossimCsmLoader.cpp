@@ -52,7 +52,7 @@ std::shared_ptr<MSP::SMS::SensorModelService> ossimCsmLoader::m_sensorModelServi
 
 ossimCsmLoader::ossimCsmLoader()
 {
-   static const char* MODULE = "ossimCsmLoader Constructor -- ";
+   // static const char* MODULE = "ossimCsmLoader Constructor -- ";
 
    init();
    
@@ -345,9 +345,9 @@ void ossimCsmLoader::getAvailableSensorModelNames(List& models, const string& pl
    }
 } 
 
-RasterGM* ossimCsmLoader::loadModelFromState(const string& pPluginName,
-                                              const string& pSensorModelName,
-                                              const string& pSensorState )
+RasterGM* ossimCsmLoader::loadModelFromState(const string& /* pPluginName */,
+                                             const string& /* pSensorModelName */,
+                                             const string& pSensorState )
 {
    static const char* MODULE = "ossimCsmLoader::loadModelFromState() -- ";
    Model* sensorModel = 0;
@@ -440,14 +440,14 @@ RasterGM* ossimCsmLoader::loadModelFromState(const string& pPluginName,
 }
 
 
-RasterGM* ossimCsmLoader::loadModelFromFile(const string& pPluginName,
+RasterGM* ossimCsmLoader::loadModelFromFile(const string& /* pPluginName */,
                                              const string& pSensorModelName,
                                              const string& pInputImage,
                                              ossim_uint32 index )
 {
    static const char* MODULE = "ossimCsmLoader::loadModelFromFile() -- ";
    Model* sensorModel = NULL;
-   RasterGM* rgm = 0;
+   // RasterGM* rgm = 0;
 
    // Make sure the input data is not NULL. For MSP, the plugin name is not used:
    if( pSensorModelName.empty() || pInputImage.empty())

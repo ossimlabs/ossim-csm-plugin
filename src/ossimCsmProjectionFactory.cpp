@@ -96,7 +96,7 @@ std::list<ossimString> ossimCsmProjectionFactory::getList()const
 
 	vector<string> pluginList;
 	ossimCsmLoader::getAvailablePluginNames(pluginList);
-    for (int i=0; i<pluginList.size(); i++)
+    for (ossim_uint32 i=0; i<pluginList.size(); i++)
     {
         vector<string> sensorList;
         ossimCsmLoader::getAvailableSensorModelNames( sensorList, pluginList[i] );
