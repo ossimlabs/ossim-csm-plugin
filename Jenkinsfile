@@ -2,7 +2,7 @@ properties([
     parameters ([
         string(name: 'BUILD_NODE', defaultValue: 'omar-build', description: 'The build node to run on'),
         string(name: 'MAKE_VERBOSE', defaultValue: 'VERBOSE=true', description: ''),
-        string(name: 'OSSIM_GIT_BRANCH', defaultValue: ${BRANCH}, description: 'Used to specify the git branch we are building and executing'),
+        string(name: 'OSSIM_GIT_BRANCH', defaultValue: '', description: 'Used to specify the git branch we are building and executing, uses the current git branch if left blank'),
         booleanParam(name: 'BUILD_WITH_FORTIFY', defaultValue: false, description: 'Check to build and scan source using HP Fortify tool'),
         booleanParam(name: 'CLEAN_WORKSPACE', defaultValue: true, description: 'Clean the workspace at the end of the run')
     ]),
@@ -24,6 +24,9 @@ node ("${BUILD_NODE}") {
             env.MSP_INSTALL_DIR = "/usr/local/msp-1.5"
             env.MSP_HOME = "/usr/local/msp-1.5"
             env.CSM_HOME = "/usr/local/csm"
+            if ("${OSSIM_GIT_BRANCH}" == "") {
+                OSSIM_GIT_BRANCH="${BRANCH}"
+            }
 
             withCredentials([string(credentialsId: 'o2-artifact-project', variable: 'o2ArtifactProject')]) {
                 step ([$class: "CopyArtifact",
