@@ -25,7 +25,7 @@ node ("${BUILD_NODE}") {
             env.MSP_HOME = "/usr/local/msp-1.5"
             env.CSM_HOME = "/usr/local/csm"
             if ("${OSSIM_GIT_BRANCH}" == "") {
-                OSSIM_GIT_BRANCH="${BRANCH}"
+                OSSIM_GIT_BRANCH="${BRANCH_NAME}"
             }
 
             withCredentials([string(credentialsId: 'o2-artifact-project', variable: 'o2ArtifactProject')]) {
