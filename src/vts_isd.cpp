@@ -108,11 +108,11 @@ void initBytestreamISD( BytestreamIsd *bytestream,
    size_t totread = 0;
 
    FILE *ifp = NULL;
-#ifdef _WIN32
+//#ifdef _WIN32
    ifp = fopen (filename.c_str(), "rb");
-#else
-   ifp = fopen64 (filename.c_str(), "rb");
-#endif
+//#else
+//   ifp = fopen64 (filename.c_str(), "rb");
+//#endif
    
    bytestream->setData(""); // empty the string
    //bytestream->_isd = ""; // empty the string
@@ -207,11 +207,11 @@ void initNitf20ISD( Nitf20Isd *isd,
    std::string ftype ("NITF20");
    FILE *ifile = NULL;
 
-#ifdef _WIN32
+//#ifdef _WIN32
    struct stat statbuf; // to check for file presence and size
-#else
-   struct stat64 statbuf; // to check for file presence and size
-#endif
+//#else
+//   struct stat64 statbuf; // to check for file presence and size
+//#endif
 
    char *buff = NULL;
 
@@ -256,11 +256,11 @@ void initNitf21ISD( Nitf21Isd *isd,
 {
    FILE *ifile = NULL;
    std::string ftype ("NITF21");
-#ifdef _WIN32
+//#ifdef _WIN32
    struct stat statbuf; // to check for file presence and size
-#else
-   struct stat64 statbuf; // to check for file presence and size
-#endif
+//#else
+//   struct stat64 statbuf; // to check for file presence and size
+//#endif
    char *buff = NULL;
 
    try {
@@ -298,24 +298,24 @@ void initNitf21ISD( Nitf21Isd *isd,
 //
 ///////////////////////////////////////////////////////////////
 FILE * fillBuff( std::string fname,
-#ifdef _WIN32
+//#ifdef _WIN32
                  struct stat &statbuf,
-#else
-				 struct stat64 &statbuf,
-#endif
+//#else
+//				 struct stat64 &statbuf,
+//#endif
                  char** buff) //  throw (Error)
 {
    Error csmerr;
    FILE *ifile = NULL;
    const off_t MAXNITFFILEHDRLEN = 999999;
 
-#ifdef _WIN32
+//#ifdef _WIN32
    off_t buffsize;     // st_size is defined as off_t
    if (stat(fname.c_str(), &statbuf))
-#else
-   off64_t buffsize;   // st_size is defined as off64_t
-   if (stat64(fname.c_str(), &statbuf))
-#endif
+//#else
+//   off64_t buffsize;   // st_size is defined as off64_t
+//   if (stat64(fname.c_str(), &statbuf))
+//#endif
    {
       csmerr.setError (Error::FILE_READ,
 			  "Unable to locate input file " + fname,
@@ -334,11 +334,11 @@ FILE * fillBuff( std::string fname,
    }
 
    // malloc ok
-#ifdef _WIN32
+//#ifdef _WIN32
    ifile = fopen (fname.c_str(), "rb");
-#else
-   ifile = fopen64 (fname.c_str(), "rb");
-#endif
+//#else
+//   ifile = fopen64 (fname.c_str(), "rb");
+//#endif
    if (! ifile)
    {
       std::string errstr ("Unable to open input file " + fname);
@@ -560,11 +560,11 @@ void DisplayValue(const char* pName, size_t start)
 
 void parseFile(Nitf20Isd *isd,
           FILE *ifile,
-#ifdef _WIN32
+//#ifdef _WIN32
           struct stat &statbuf,
-#else
-          struct stat64 &statbuf,
-#endif
+//#else
+//          struct stat64 &statbuf,
+//#endif
           char* buff,
           const int imageIndex,
 		  WarningList* warnings)
@@ -949,11 +949,11 @@ void parseFile(Nitf20Isd *isd,
 ///////////////////////////////////////////////////////////////
 void parseFile(Nitf21Isd *isd,
                FILE *ifile,
-#ifdef _WIN32
+//#ifdef _WIN32
                struct stat &statbuf,
-#else
-               struct stat64 &statbuf,
-#endif
+//#else
+//               struct stat64 &statbuf,
+//#endif
                char* buff,
                const int imageIndex,
 			   WarningList* warnings)
@@ -2723,11 +2723,11 @@ void writeStateFile(std::string fname, std::string state)//  throw (Error)
    size_t buffsize;
    FILE *ofile = NULL;
 
-#ifdef _WIN32
+//#ifdef _WIN32
    ofile = fopen (fname.c_str(), "w");
-#else
-   ofile = fopen64 (fname.c_str(), "w");
-#endif
+//#else
+//   ofile = fopen64 (fname.c_str(), "w");
+//#endif
 
    if (!ofile)
    {
@@ -2778,20 +2778,20 @@ std::string readStateFile(std::string fname)// throw (Error)
    FILE *ifile = NULL;
    int buffsize;
 
-#ifdef _WIN32
+//#ifdef _WIN32
    off_t byte_size_of_file;
-#else
-   off64_t byte_size_of_file;
-#endif
+//#else
+//   off64_t byte_size_of_file;
+//#endif
 
    char* buff;
    std::string state_from_file;
 
-#ifdef _WIN32
+//#ifdef _WIN32
    ifile = fopen (fname.c_str(), "rb");
-#else
-   ifile = fopen64 (fname.c_str(), "rb");
-#endif
+//#else
+//   ifile = fopen64 (fname.c_str(), "rb");
+//#endif
 
    if (! ifile)
    {
@@ -2803,15 +2803,15 @@ std::string readStateFile(std::string fname)// throw (Error)
       throw (csmerr);
    }
 
-#ifdef _WIN32
+//#ifdef _WIN32
    fseek(ifile, 0, SEEK_END);
    byte_size_of_file = ftell(ifile);
    fseek(ifile, 0, SEEK_SET);
-#else
-   fseeko64(ifile, 0, SEEK_END);
-   byte_size_of_file = ftello64(ifile);
-   fseeko64(ifile, 0, SEEK_SET);
-#endif
+//#else
+//   fseeko64(ifile, 0, SEEK_END);
+//   byte_size_of_file = ftello64(ifile);
+//   fseeko64(ifile, 0, SEEK_SET);
+//#endif
 
    buffsize = (int)(byte_size_of_file);
    buff = (char*) calloc (buffsize, sizeof (char));

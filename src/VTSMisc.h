@@ -48,11 +48,11 @@ using namespace csm;
 #define MAXOUTPUTPARAMETERS     200
 #define TEMP_STRING_LENGTH 2048
 
-#ifdef _WIN32
+//#ifdef _WIN32
 #define STATTYPE stat
-#else
-#define STATTYPE stat64
-#endif
+//#else
+//#define STATTYPE stat64
+//#endif
 
 extern std::list<std::string> commandQueue;
 extern std::vector<std::string> menulist;
@@ -190,11 +190,11 @@ OSSIM_PLUGINS_DLL void initNitf21ISD(Nitf21Isd *isd,
 				   WarningList* warnings = NULL);
 
 FILE * fillBuff (std::string fname,
-#ifdef _WIN32
+//#ifdef _WIN32
                     struct stat &statbuf, 
-#else
-                    struct stat64 &statbuf,
-#endif
+//#else
+//                    struct stat64 &statbuf,
+//#endif
                  char **buff);//  throw (Error);
 
 std::string readStateFile( std::string fname); //  throw (Error);
@@ -202,22 +202,22 @@ void writeStateFile(std::string fname, std::string state); //  throw (Error);
 
 void parseFile(Nitf20Isd *isd,
                FILE *ifile,
-#ifdef _WIN32
+//#ifdef _WIN32
                struct stat &statbuf,
-#else
-               struct stat64 &statbuf,
-#endif
+//#else
+//               struct stat64 &statbuf,
+//#endif
                char* buff,
                const int imageIndex,
 		       WarningList* warnings);
 
 void parseFile(Nitf21Isd *isd,
                FILE *ifile,
-#ifdef _WIN32
+//#ifdef _WIN32
                struct stat &statbuf,
-#else
-               struct stat64 &statbuf,
-#endif
+//#else
+//               struct stat64 &statbuf,
+//#endif
                char* buff,
                const int imageIndex,
 		       WarningList* warnings);
