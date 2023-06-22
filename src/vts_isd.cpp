@@ -108,7 +108,9 @@ void initBytestreamISD( BytestreamIsd *bytestream,
    size_t totread = 0;
 
    FILE *ifp = NULL;
-#ifdef _WIN32
+#ifdef _WIN32  
+   ifp = fopen (filename.c_str(), "rb");
+#elif __APPLE__   
    ifp = fopen (filename.c_str(), "rb");
 #else
    ifp = fopen64 (filename.c_str(), "rb");
@@ -209,6 +211,8 @@ void initNitf20ISD( Nitf20Isd *isd,
 
 #ifdef _WIN32
    struct stat statbuf; // to check for file presence and size
+#elif __APPLE__
+   struct stat statbuf; // to check for file presence and size
 #else
    struct stat64 statbuf; // to check for file presence and size
 #endif
@@ -258,6 +262,8 @@ void initNitf21ISD( Nitf21Isd *isd,
    std::string ftype ("NITF21");
 #ifdef _WIN32
    struct stat statbuf; // to check for file presence and size
+#elif __APPLE__   
+   struct stat statbuf; // to check for file presence and size
 #else
    struct stat64 statbuf; // to check for file presence and size
 #endif
@@ -300,6 +306,8 @@ void initNitf21ISD( Nitf21Isd *isd,
 FILE * fillBuff( std::string fname,
 #ifdef _WIN32
                  struct stat &statbuf,
+#elif __APPLE__   
+                 struct stat &statbuf,
 #else
 				 struct stat64 &statbuf,
 #endif
@@ -310,6 +318,9 @@ FILE * fillBuff( std::string fname,
    const off_t MAXNITFFILEHDRLEN = 999999;
 
 #ifdef _WIN32
+   off_t buffsize;     // st_size is defined as off_t
+   if (stat(fname.c_str(), &statbuf))
+#elif __APPLE__   
    off_t buffsize;     // st_size is defined as off_t
    if (stat(fname.c_str(), &statbuf))
 #else
@@ -336,6 +347,8 @@ FILE * fillBuff( std::string fname,
    // malloc ok
 #ifdef _WIN32
    ifile = fopen (fname.c_str(), "rb");
+#elif __APPLE__
+   ifile = fopen (fname.c_str(), "rb");   
 #else
    ifile = fopen64 (fname.c_str(), "rb");
 #endif
@@ -561,6 +574,8 @@ void DisplayValue(const char* pName, size_t start)
 void parseFile(Nitf20Isd *isd,
           FILE *ifile,
 #ifdef _WIN32
+          struct stat &statbuf,
+#elif __APPLE__
           struct stat &statbuf,
 #else
           struct stat64 &statbuf,
@@ -950,6 +965,8 @@ void parseFile(Nitf20Isd *isd,
 void parseFile(Nitf21Isd *isd,
                FILE *ifile,
 #ifdef _WIN32
+               struct stat &statbuf,
+#elif __APPLE__   
                struct stat &statbuf,
 #else
                struct stat64 &statbuf,
@@ -1854,6 +1871,9 @@ char* getSegment(FILE *pFile,
 #if defined (WIN32)
    fpos_t f_offset = offset;
    fsetpos(pFile, &f_offset);
+#elif __APPLE__
+   fpos_t f_offset = offset;
+   fsetpos(pFile, &f_offset);
 #else
 #if defined (__linux)
    off64_t f_offset = offset;
@@ -2725,6 +2745,8 @@ void writeStateFile(std::string fname, std::string state)//  throw (Error)
 
 #ifdef _WIN32
    ofile = fopen (fname.c_str(), "w");
+#elif __APPLE__
+   ofile = fopen (fname.c_str(), "w");
 #else
    ofile = fopen64 (fname.c_str(), "w");
 #endif
@@ -2780,6 +2802,8 @@ std::string readStateFile(std::string fname)// throw (Error)
 
 #ifdef _WIN32
    off_t byte_size_of_file;
+#elif __APPLE__
+   off_t byte_size_of_file;
 #else
    off64_t byte_size_of_file;
 #endif
@@ -2788,6 +2812,8 @@ std::string readStateFile(std::string fname)// throw (Error)
    std::string state_from_file;
 
 #ifdef _WIN32
+   ifile = fopen (fname.c_str(), "rb");
+#elif __APPLE__
    ifile = fopen (fname.c_str(), "rb");
 #else
    ifile = fopen64 (fname.c_str(), "rb");
@@ -2804,6 +2830,10 @@ std::string readStateFile(std::string fname)// throw (Error)
    }
 
 #ifdef _WIN32
+   fseek(ifile, 0, SEEK_END);
+   byte_size_of_file = ftell(ifile);
+   fseek(ifile, 0, SEEK_SET);
+#elif __APPLE__
    fseek(ifile, 0, SEEK_END);
    byte_size_of_file = ftell(ifile);
    fseek(ifile, 0, SEEK_SET);

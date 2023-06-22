@@ -50,6 +50,8 @@ using namespace csm;
 
 #ifdef _WIN32
 #define STATTYPE stat
+#elif __APPLE__
+#define STATTYPE stat
 #else
 #define STATTYPE stat64
 #endif
@@ -191,7 +193,9 @@ OSSIM_PLUGINS_DLL void initNitf21ISD(Nitf21Isd *isd,
 
 FILE * fillBuff (std::string fname,
 #ifdef _WIN32
-                    struct stat &statbuf, 
+                    struct stat &statbuf,
+#elif __APPLE__                     
+                    struct stat &statbuf,
 #else
                     struct stat64 &statbuf,
 #endif
@@ -204,6 +208,8 @@ void parseFile(Nitf20Isd *isd,
                FILE *ifile,
 #ifdef _WIN32
                struct stat &statbuf,
+#elif __APPLE__
+               struct stat &statbuf,
 #else
                struct stat64 &statbuf,
 #endif
@@ -214,6 +220,8 @@ void parseFile(Nitf20Isd *isd,
 void parseFile(Nitf21Isd *isd,
                FILE *ifile,
 #ifdef _WIN32
+               struct stat &statbuf,
+#elif __APPLE__
                struct stat &statbuf,
 #else
                struct stat64 &statbuf,
