@@ -345,8 +345,8 @@ void ossimCsmLoader::getAvailableSensorModelNames(List& models, const string& pl
    }
 } 
 
-RasterGM* ossimCsmLoader::loadModelFromState(const string& /* pPluginName */,
-                                             const string& /* pSensorModelName */,
+RasterGM* ossimCsmLoader::loadModelFromState(const string& pPluginName,
+                                             const string& pSensorModelName,
                                              const string& pSensorState )
 {
    static const char* MODULE = "ossimCsmLoader::loadModelFromState() -- ";
@@ -440,7 +440,7 @@ RasterGM* ossimCsmLoader::loadModelFromState(const string& /* pPluginName */,
 }
 
 
-RasterGM* ossimCsmLoader::loadModelFromFile(const string& /* pPluginName */,
+RasterGM* ossimCsmLoader::loadModelFromFile(const string& pPluginName,
                                              const string& pSensorModelName,
                                              const string& pInputImage,
                                              ossim_uint32 index )

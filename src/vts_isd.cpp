@@ -207,11 +207,11 @@ void initNitf20ISD( Nitf20Isd *isd,
    std::string ftype ("NITF20");
    FILE *ifile = NULL;
 
-#ifdef _WIN32
+//#ifdef _WIN32
    struct stat statbuf; // to check for file presence and size
-#else
-   struct stat64 statbuf; // to check for file presence and size
-#endif
+//#else
+//   struct stat64 statbuf; // to check for file presence and size
+//#endif
 
    char *buff = NULL;
 
@@ -256,11 +256,11 @@ void initNitf21ISD( Nitf21Isd *isd,
 {
    FILE *ifile = NULL;
    std::string ftype ("NITF21");
-#ifdef _WIN32
+//#ifdef _WIN32
    struct stat statbuf; // to check for file presence and size
-#else
-   struct stat64 statbuf; // to check for file presence and size
-#endif
+//#else
+//   struct stat64 statbuf; // to check for file presence and size
+//#endif
    char *buff = NULL;
 
    try {
@@ -298,11 +298,11 @@ void initNitf21ISD( Nitf21Isd *isd,
 //
 ///////////////////////////////////////////////////////////////
 FILE * fillBuff( std::string fname,
-#ifdef _WIN32
+//#ifdef _WIN32
                  struct stat &statbuf,
-#else
-				 struct stat64 &statbuf,
-#endif
+//#else
+//				 struct stat64 &statbuf,
+//#endif
                  char** buff) //  throw (Error)
 {
    Error csmerr;
@@ -560,11 +560,11 @@ void DisplayValue(const char* pName, size_t start)
 
 void parseFile(Nitf20Isd *isd,
           FILE *ifile,
-#ifdef _WIN32
+//#ifdef _WIN32
           struct stat &statbuf,
-#else
-          struct stat64 &statbuf,
-#endif
+//#else
+//          struct stat64 &statbuf,
+//#endif
           char* buff,
           const int imageIndex,
 		  WarningList* warnings)
@@ -949,11 +949,11 @@ void parseFile(Nitf20Isd *isd,
 ///////////////////////////////////////////////////////////////
 void parseFile(Nitf21Isd *isd,
                FILE *ifile,
-#ifdef _WIN32
+//#ifdef _WIN32
                struct stat &statbuf,
-#else
-               struct stat64 &statbuf,
-#endif
+//#else
+//               struct stat64 &statbuf,
+//#endif
                char* buff,
                const int imageIndex,
 			   WarningList* warnings)
